@@ -496,3 +496,50 @@ button:hover,
   line-height: 1.22;
   color: #f8fafc;
 }
+
+/* Seletor de Perfil em Duas Caixas (Login) */
+.seletor-perfil {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 0.3rem;
+  margin-bottom: 1rem;
+}
+
+.seletor-perfil input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.seletor-perfil label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--altura-alvo);
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: 9px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--suave);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.seletor-perfil input[type="radio"]:checked + label {
+  background: var(--destaque);
+  color: var(--sobre-destaque);
+  box-shadow: 0 0 14px rgba(0, 212, 146, 0.35);
+}
+
+.seletor-perfil input[type="radio"]:focus-visible + label {
+  outline: 3px solid var(--destaque);
+  outline-offset: 2px;
+}

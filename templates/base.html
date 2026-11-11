@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}MobiLivre · SemBarreiras ADEFAL{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261111">
 </head>
 <body class="{% if user.is_authenticated and user.perfil_pcd %}toque-{{ user.perfil_pcd.tamanho_toque|lower }}{% if user.perfil_pcd.alto_contraste %} alto-contraste{% endif %}{% else %}toque-padrao{% endif %}">
   <div class="moldura-mobile">

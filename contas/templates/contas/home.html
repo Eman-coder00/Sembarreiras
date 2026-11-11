@@ -30,7 +30,19 @@
   <h2 class="marca-home">SemBarreiras</h2>
 </div>
 
-{% if sugestao_texto %}
+{% if alerta_panico_cuidador %}
+  <section class="cartao cartao-perigo" role="alert" style="margin-bottom:1rem;">
+    <strong style="display:block;font-size:0.98rem;margin-bottom:0.3rem;">
+      🚨 {{ alerta_panico_cuidador.titulo }}
+    </strong>
+    <p style="font-size:0.84rem;margin:0 0 0.65rem;">
+      {{ alerta_panico_cuidador.descricao }}
+    </p>
+    <a href="{% url 'contas:notificacoes' %}" class="botao botao-perigo">
+      Ver Aviso Completo nas Notificações
+    </a>
+  </section>
+{% elif sugestao_texto %}
   <div class="banner-sugestao-home" role="status">
     <span aria-hidden="true">🟠</span>
     <span>{{ sugestao_texto }}</span>
@@ -206,11 +218,11 @@
       <span class="rotulo-bloco-home">Ajustes de<br>Acessibilidade</span>
     </a>
 
-    <!-- 11. Alertas e Prazos de Empréstimo -->
-    <a href="{% url 'equipamentos:lista' %}" class="bloco-home {% if tem_alerta_prazo %}sugerido{% endif %}">
+    <!-- 11. Alertas e Notificações Gerais -->
+    <a href="{% url 'contas:notificacoes' %}" class="bloco-home {% if total_notificacoes %}sugerido{% endif %}">
       <div class="icone-bloco-home">
-        {% if tem_alerta_prazo %}
-          <span class="ponto-sugestao" title="Acompanhe seus equipamentos e prazos"></span>
+        {% if total_notificacoes %}
+          <span class="ponto-sugestao" title="Você possui notificações e alertas"></span>
         {% endif %}
         <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M32 14 C23 14 18 21 18 30 V42 L13 47 H51 L46 42 V30 C46 21 41 14 32 14 Z" fill="#eab308" stroke="#0f172a" stroke-width="2.5"/>
@@ -220,7 +232,7 @@
           <circle cx="46" cy="30" r="1.2" fill="#ffffff"/>
         </svg>
       </div>
-      <span class="rotulo-bloco-home">Alertas e<br>Prazos</span>
+      <span class="rotulo-bloco-home">Alertas e<br>Notificações</span>
     </a>
 
     <!-- 12. Vínculos e Conta ADEFAL -->
@@ -324,8 +336,11 @@
     </a>
 
     <!-- 6. Histórico de Ocorrências de Emergência do Titular -->
-    <a href="{% url 'emergencia:historico' %}" class="bloco-home">
+    <a href="{% url 'emergencia:historico' %}" class="bloco-home {% if alerta_panico_cuidador %}sugerido{% endif %}">
       <div class="icone-bloco-home">
+        {% if alerta_panico_cuidador %}
+          <span class="ponto-sugestao" title="Emergência recente registrada pelo titular"></span>
+        {% endif %}
         <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <rect x="14" y="12" width="30" height="40" rx="4" fill="#e2e8f0" stroke="#0f172a" stroke-width="2.5"/>
           <rect x="22" y="8" width="14" height="7" rx="2" fill="#f59e0b" stroke="#0f172a" stroke-width="2"/>
@@ -339,11 +354,11 @@
       <span class="rotulo-bloco-home">Histórico de<br>Ocorrências</span>
     </a>
 
-    <!-- 7. Alertas e Prazos -->
-    <a href="{% url 'equipamentos:lista' %}" class="bloco-home {% if tem_alerta_prazo %}sugerido{% endif %}">
+    <!-- 7. Alertas e Notificações Gerais -->
+    <a href="{% url 'contas:notificacoes' %}" class="bloco-home {% if total_notificacoes %}sugerido{% endif %}">
       <div class="icone-bloco-home">
-        {% if tem_alerta_prazo %}
-          <span class="ponto-sugestao" title="Prazos de empréstimo do assistido"></span>
+        {% if total_notificacoes %}
+          <span class="ponto-sugestao" title="Você possui notificações e alertas"></span>
         {% endif %}
         <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M32 14 C23 14 18 21 18 30 V42 L13 47 H51 L46 42 V30 C46 21 41 14 32 14 Z" fill="#eab308" stroke="#0f172a" stroke-width="2.5"/>
@@ -351,7 +366,7 @@
           <polygon points="46,16 56,32 36,32" fill="#ef4444" stroke="#0f172a" stroke-width="2"/>
         </svg>
       </div>
-      <span class="rotulo-bloco-home">Alertas e<br>Prazos</span>
+      <span class="rotulo-bloco-home">Alertas e<br>Notificações</span>
     </a>
 
     <!-- 8. Ônibus em Tempo Real -->

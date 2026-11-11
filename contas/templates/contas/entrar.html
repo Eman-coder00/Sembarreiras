@@ -11,11 +11,26 @@
     <input type="hidden" name="next" value="{{ next }}">
     {{ form.non_field_errors }}
 
-    <div>
-      {{ form.perfil_selecionado.label_tag }}
-      {{ form.perfil_selecionado }}
-      {{ form.perfil_selecionado.errors }}
+    <div class="seletor-perfil" role="radiogroup" aria-label="Perfil de Acesso">
+      <input
+        type="radio"
+        name="{{ form.perfil_selecionado.html_name }}"
+        id="id_perfil_pcd"
+        value="PCD"
+        {% if form.perfil_selecionado.value != "CUIDADOR" %}checked{% endif %}
+      >
+      <label for="id_perfil_pcd">Usuário Titular PCD</label>
+
+      <input
+        type="radio"
+        name="{{ form.perfil_selecionado.html_name }}"
+        id="id_perfil_cuidador"
+        value="CUIDADOR"
+        {% if form.perfil_selecionado.value == "CUIDADOR" %}checked{% endif %}
+      >
+      <label for="id_perfil_cuidador">Cuidador Vinculado</label>
     </div>
+    {{ form.perfil_selecionado.errors }}
     <div>
       {{ form.identificador.label_tag }}
       {{ form.identificador }}

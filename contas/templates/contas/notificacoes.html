@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Alertas e Notificações · SemBarreiras{% endblock %}
+{% block titulo_tela %}Notificações{% endblock %}
+{% block nav_home %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-destaque">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+    <h2 class="titulo-secao" style="margin:0;">Central de Alertas e Avisos</h2>
+    <span class="selo">{{ notificacoes|length }} aviso(s)</span>
+  </div>
+  <p style="font-size:0.86rem;color:var(--suave);margin:0;">
+    Acompanhe emergências acionadas, autorizações de vínculo, consultas confirmadas e prazos de equipamentos.
+  </p>
+</section>
+
+{% for item in notificacoes %}
+  <section class="cartao {% if item.nivel == 'CRITICO' %}cartao-perigo{% elif item.nivel == 'ALERTA' %}cartao-alerta{% else %}cartao-destaque{% endif %}">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-bottom:0.45rem;">
+      <strong style="font-size:0.98rem;">{{ item.icone }} {{ item.titulo }}</strong>
+      <span class="selo" {% if item.nivel == 'CRITICO' %}style="border-color:var(--perigo);color:#fca5a5;"{% elif item.nivel == 'ALERTA' %}style="border-color:var(--alerta);color:var(--alerta);"{% endif %}>
+        {{ item.tipo }}
+      </span>
+    </div>
+    <p style="font-size:0.9rem;margin:0.35rem 0;">{{ item.descricao }}</p>
+    {% if item.detalhe_extra %}
+      <p style="font-size:0.82rem;background:var(--fundo);padding:0.55rem 0.7rem;border-radius:8px;margin:0.45rem 0 0.75rem;color:var(--suave);">
+        {{ item.detalhe_extra }}
+      </p>
+    {% endif %}
+    <a href="{{ item.url }}" class="botao {% if item.nivel == 'CRITICO' %}botao-perigo{% elif item.nivel != 'ALERTA' %}botao-secundario{% endif %}">
+      {{ item.texto_botao }}
+    </a>
+  </section>
+{% empty %}
+  <section class="cartao">
+    <p style="margin:0;color:var(--suave);">
+      Nenhuma notificação pendente no momento. Tudo está em dia!
+    </p>
+  </section>
+{% endfor %}
+
+<a href="{% url 'contas:home' %}" class="botao botao-secundario">Voltar ao Menu Inicial</a>
+{% endblock %}
+

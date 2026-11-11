@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
@@ -38,6 +40,8 @@ class ConsultaListView(LoginRequiredMixin, View):
             status_val = form.cleaned_data.get("status")
             status = int(status_val) if status_val else None
 
+        sem_vinculo_aprovado = False
+        consultas: Any = []
         try:
             consultas = AgendamentoService.listar_consultas_autorizadas(
                 request.user,
@@ -45,7 +49,9 @@ class ConsultaListView(LoginRequiredMixin, View):
                 status=status,
             )
         except AgendamentoNaoEncontrado as exc:
-            raise Http404 from exc
+            consultas = []
+            sem_vinculo_aprovado = True
+            messages.warning(request, str(exc))
 
         return render(
             request,
@@ -53,6 +59,7 @@ class ConsultaListView(LoginRequiredMixin, View):
             {
                 "consultas": consultas,
                 "form": form,
+                "sem_vinculo_aprovado": sem_vinculo_aprovado,
             },
         )
 
@@ -97,7 +104,12 @@ class ConsultaCreateView(LoginRequiredMixin, View):
                 titular_cpf=dados.get("titular_cpf") or None,
             )
         except AgendamentoNaoEncontrado as exc:
-            raise Http404 from exc
+            # Cuidador sem vínculo aprovado é orientado na própria tela de criação
+            messages.error(
+                request,
+                f"{exc} Confirme o código OTP com o titular PCD na tela de Vínculos ou verifique o CPF informado.",
+            )
+            return redirect("agendamentos:criar")
         except VagaIndisponivel as exc:
             messages.error(request, str(exc))
             return redirect("agendamentos:criar")

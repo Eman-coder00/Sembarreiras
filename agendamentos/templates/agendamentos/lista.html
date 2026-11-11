@@ -5,6 +5,16 @@
 {% block nav_saude %}ativo{% endblock %}
 
 {% block content %}
+{% if sem_vinculo_aprovado %}
+<section class="cartao cartao-alerta">
+  <h2 class="titulo-secao" style="color:var(--alerta);">Vínculo Pendente de Aprovação (OTP)</h2>
+  <p style="font-size:0.9rem;margin:0.25rem 0 0.75rem;">
+    Para consultar ou agendar atendimentos em nome do Titular PCD, confirme primeiro o código OTP de 6 dígitos na aba de Vínculos.
+  </p>
+  <a href="{% url 'contas:vinculos' %}" class="botao">Ir para Vínculos e Confirmar OTP</a>
+</section>
+{% endif %}
+
 <div style="display:grid;gap:0.65rem;margin-bottom:1rem;">
   <a href="{% url 'agendamentos:criar' %}" class="botao">➕ Novo Agendamento na ADEFAL</a>
   {% if user.is_staff %}

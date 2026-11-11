@@ -49,6 +49,16 @@ class HomeView(LoginRequiredMixin, View):
         )
 
 
+class NotificacoesView(LoginRequiredMixin, View):
+    def get(self, request):
+        notificacoes = ContaService.listar_notificacoes(request.user)
+        return render(
+            request,
+            "contas/notificacoes.html",
+            {"notificacoes": notificacoes},
+        )
+
+
 class PainelInicialView(LoginRequiredMixin, View):
     def get(self, request):
         perfil = ContaService.obter_perfil_pcd(request.user)

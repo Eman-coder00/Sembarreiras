@@ -8,6 +8,7 @@ from .views import (
     ContaInativarView,
     EntrarView,
     HomeView,
+    NotificacoesView,
     PainelInicialView,
     PerfilEditarView,
     SairView,
@@ -22,6 +23,7 @@ app_name = "contas"
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
+    path("notificacoes/", NotificacoesView.as_view(), name="notificacoes"),
     path("conta/", PainelInicialView.as_view(), name="painel"),
     path("entrar/", EntrarView.as_view(), name="entrar"),
     path("sair/", SairView.as_view(), name="sair"),

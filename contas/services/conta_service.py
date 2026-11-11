@@ -33,6 +33,14 @@ def cpf_eh_valido(valor: str) -> bool:
     digitos = re.sub(r"\D", "", valor or "")
     if len(digitos) != 11 or digitos == digitos[0] * 11:
         return False
+    for indice in (9, 10):
+        soma = sum(
+            int(digitos[pos]) * ((indice + 1) - pos) for pos in range(indice)
+        )
+        resto = (soma * 10) % 11
+        digito_esperado = 0 if resto == 10 else resto
+        if int(digitos[indice]) != digito_esperado:
+            return False
     return True
 
 
@@ -332,6 +340,221 @@ class ContaService:
         return vinculo.titular_pcd
 
     @staticmethod
+    def _normalizar_telefone(valor: str) -> str:
+        return re.sub(r"\D", "", valor or "")
+
+    @staticmethod
+    def _cuidador_esta_nos_contatos_emergencia(
+        cuidador: Any,
+        titular: Any,
+    ) -> bool:
+        from emergencia.models import ContatoEmergencia
+
+        tel_cuidador = ContaService._normalizar_telefone(
+            getattr(cuidador, "telefone", "")
+        )
+        if not tel_cuidador:
+            return False
+
+        contatos = ContatoEmergencia.objects.filter(
+            titular_pcd=titular,
+            status=1,
+        ).values_list("telefone", flat=True)
+        return any(
+            ContaService._normalizar_telefone(tel) == tel_cuidador
+            for tel in contatos
+        )
+
+    @staticmethod
+    def listar_notificacoes(usuario: Any) -> list[dict[str, Any]]:
+        from django.urls import reverse
+        from django.utils import timezone
+
+        from agendamentos.models import Consulta
+        from emergencia.models import ContatoEmergencia, OcorrenciaPanico
+        from equipamentos.models import (
+            SolicitacaoEquipamento,
+            StatusSolicitacaoEquipamento,
+        )
+        from equipamentos.services import EquipamentoService
+
+        eh_cuidador = getattr(usuario, "papel", "") == PapelUsuario.CUIDADOR
+        titular: Any = None
+        try:
+            titular = ContaService.obter_titular_autorizado(usuario)
+        except PermissaoNegadaTitular:
+            titular = None
+
+        notificacoes: list[dict[str, Any]] = []
+
+        # 1. Alertas de Botão de Pânico para Cuidador cadastrado nos contatos de emergência
+        if (
+            eh_cuidador
+            and titular is not None
+            and ContaService._cuidador_esta_nos_contatos_emergencia(
+                usuario, titular
+            )
+        ):
+            ocorrencias_disparadas = (
+                OcorrenciaPanico.objects.filter(
+                    titular_pcd=titular,
+                    status__in=["ENTREGUE", "FALLBACK_SMS", "FALHA_PARCIAL"],
+                )
+                .order_by("-criado_em", "-id")[:5]
+            )
+            for oc in ocorrencias_disparadas:
+                notificacoes.append(
+                    {
+                        "tipo": "EMERGENCIA",
+                        "nivel": "CRITICO",
+                        "icone": "🚨",
+                        "titulo": f"Botão de Pânico acionado por {titular.nome_completo}",
+                        "descricao": (
+                            f"Ocorrência {oc.codigo} disparada em "
+                            f"{timezone.localtime(oc.criado_em).strftime('%d/%m/%Y às %H:%M')}. "
+                            f"Localização: {oc.endereco_aproximado or 'Coordenadas registradas no histórico'}."
+                        ),
+                        "detalhe_extra": oc.mensagem_enviada,
+                        "url": reverse("emergencia:historico"),
+                        "texto_botao": "Abrir Histórico e Localização",
+                    }
+                )
+
+        # 2. Aviso de segurança caso titular PCD ainda não possua contatos de emergência
+        if not eh_cuidador:
+            tem_contato = ContatoEmergencia.objects.filter(
+                titular_pcd=usuario,
+                status=1,
+            ).exists()
+            if not tem_contato:
+                notificacoes.append(
+                    {
+                        "tipo": "SEGURANCA",
+                        "nivel": "ALERTA",
+                        "icone": "🛡️",
+                        "titulo": "Botão de Pânico sem contatos configurados",
+                        "descricao": (
+                            "Cadastre ao menos 1 contato de emergência prioritário para habilitar o acionamento rápido do SOS."
+                        ),
+                        "detalhe_extra": "",
+                        "url": reverse("emergencia:contatos"),
+                        "texto_botao": "Cadastrar Contatos de Emergência",
+                    }
+                )
+
+        # 3. Solicitações de vínculo de cuidador pendentes (OTP)
+        filtro_vinculo = (
+            {"cuidador": usuario, "status": StatusVinculo.PENDENTE}
+            if eh_cuidador
+            else {"titular_pcd": usuario, "status": StatusVinculo.PENDENTE}
+        )
+        vinculos_pendentes = VinculoCuidador.objects.select_related(
+            "cuidador", "titular_pcd"
+        ).filter(**filtro_vinculo)
+        for v in vinculos_pendentes:
+            if eh_cuidador:
+                desc = (
+                    f"Aguardando confirmação do código OTP fornecido por {v.titular_pcd.nome_completo}."
+                )
+            else:
+                desc = (
+                    f"{v.cuidador.nome_completo} ({v.cuidador.cpf}) solicitou vínculo. "
+                    f"Código OTP gerado: {v.codigo_otp}."
+                )
+            notificacoes.append(
+                {
+                    "tipo": "VINCULO",
+                    "nivel": "ALERTA",
+                    "icone": "🔗",
+                    "titulo": "Vínculo de cuidador aguardando confirmação OTP",
+                    "descricao": desc,
+                    "detalhe_extra": "",
+                    "url": reverse("contas:vinculos"),
+                    "texto_botao": "Gerenciar Vínculos",
+                }
+            )
+
+        # 4. Alertas de prazo de devolução e retiradas aprovadas de equipamentos
+        if titular is not None:
+            for alerta in EquipamentoService.listar_alertas_vencimento(titular):
+                sol = alerta["solicitacao"]
+                notificacoes.append(
+                    {
+                        "tipo": "EQUIPAMENTO",
+                        "nivel": (
+                            "CRITICO"
+                            if alerta["nivel"] == "URGENTE_2_DIAS"
+                            else "ALERTA"
+                        ),
+                        "icone": "⏳",
+                        "titulo": f"Prazo de empréstimo próximo do vencimento ({sol.protocolo})",
+                        "descricao": alerta["mensagem"],
+                        "detalhe_extra": "",
+                        "url": reverse(
+                            "equipamentos:detalhe",
+                            kwargs={"protocolo": sol.protocolo},
+                        ),
+                        "texto_botao": "Renovar ou Agendar Devolução",
+                    }
+                )
+
+            prontos_retirada = SolicitacaoEquipamento.objects.filter(
+                beneficiario_pcd=titular,
+                status=StatusSolicitacaoEquipamento.APROVADO_RETIRADA,
+            )
+            for sol in prontos_retirada:
+                notificacoes.append(
+                    {
+                        "tipo": "EQUIPAMENTO",
+                        "nivel": "INFO",
+                        "icone": "♿",
+                        "titulo": f"Equipamento aprovado para retirada ({sol.protocolo})",
+                        "descricao": (
+                            "Sua solicitação foi aprovada pela triagem técnica da ADEFAL e está pronta para retirada."
+                        ),
+                        "detalhe_extra": sol.parecer_tecnico,
+                        "url": reverse(
+                            "equipamentos:detalhe",
+                            kwargs={"protocolo": sol.protocolo},
+                        ),
+                        "texto_botao": "Ver Detalhes do Pedido",
+                    }
+                )
+
+            # 5. Próximas consultas confirmadas na ADEFAL
+            hoje = timezone.localdate()
+            consultas_futuras = (
+                Consulta.objects.select_related("vaga")
+                .filter(
+                    paciente_pcd=titular,
+                    status=1,
+                    vaga__data__gte=hoje,
+                )
+                .order_by("vaga__data", "vaga__horario")[:5]
+            )
+            for c in consultas_futuras:
+                notificacoes.append(
+                    {
+                        "tipo": "CONSULTA",
+                        "nivel": "INFO",
+                        "icone": "🏥",
+                        "titulo": f"Consulta confirmada ({c.protocolo})",
+                        "descricao": (
+                            f"Atendimento em {c.vaga.data.strftime('%d/%m/%Y')} às "
+                            f"{c.vaga.horario.strftime('%H:%M')} com {c.vaga.profissional}."
+                        ),
+                        "detalhe_extra": "",
+                        "url": reverse(
+                            "agendamentos:detalhe",
+                            kwargs={"protocolo": c.protocolo},
+                        ),
+                        "texto_botao": "Ver Consulta e Comprovante",
+                    }
+                )
+
+        return notificacoes
+
+    @staticmethod
     def obter_resumo_home(usuario: Any) -> dict[str, Any]:
         eh_cuidador = getattr(usuario, "papel", "") == PapelUsuario.CUIDADOR
         if eh_cuidador:
@@ -345,7 +568,7 @@ class ContaService:
                 status=StatusVinculo.PENDENTE,
             ).exists()
 
-        titular = None
+        titular: Any = None
         try:
             titular = ContaService.obter_titular_autorizado(usuario)
         except PermissaoNegadaTitular:
@@ -354,20 +577,36 @@ class ContaService:
         sem_contato_emergencia = False
         tem_consulta_confirmada = False
         tem_alerta_prazo = False
+        alerta_panico_cuidador: dict[str, Any] | None = None
 
         if titular is not None:
-            sem_contato_emergencia = not titular.contatos_emergencia.filter(
-                status=1
+            from agendamentos.models import Consulta
+            from emergencia.models import ContatoEmergencia
+            from equipamentos.models import SolicitacaoEquipamento
+
+            sem_contato_emergencia = not ContatoEmergencia.objects.filter(
+                titular_pcd=titular,
+                status=1,
             ).exists()
-            tem_consulta_confirmada = titular.consultas.filter(
-                status=1
+            tem_consulta_confirmada = Consulta.objects.filter(
+                paciente_pcd=titular,
+                status=1,
             ).exists()
-            tem_alerta_prazo = titular.solicitacoes_equipamento.filter(
-                status__in=[1, 2, 3, 4]
+            tem_alerta_prazo = SolicitacaoEquipamento.objects.filter(
+                beneficiario_pcd=titular,
+                status__in=[1, 2, 3, 4],
             ).exists()
 
+        notificacoes = ContaService.listar_notificacoes(usuario)
+        for item in notificacoes:
+            if item["tipo"] == "EMERGENCIA":
+                alerta_panico_cuidador = item
+                break
+
         sugestao_texto = ""
-        if eh_cuidador and titular is None:
+        if alerta_panico_cuidador is not None:
+            sugestao_texto = alerta_panico_cuidador["titulo"]
+        elif eh_cuidador and titular is None:
             sugestao_texto = "Ação sugerida: Confirme o código OTP com o titular PCD para liberar os serviços."
         elif not eh_cuidador and sem_contato_emergencia:
             sugestao_texto = "Ação sugerida: Cadastre ao menos 1 contato prioritário para o Botão de Pânico."
@@ -381,5 +620,7 @@ class ContaService:
             "sem_contato_emergencia": sem_contato_emergencia,
             "tem_consulta_confirmada": tem_consulta_confirmada,
             "tem_alerta_prazo": tem_alerta_prazo,
+            "alerta_panico_cuidador": alerta_panico_cuidador,
+            "total_notificacoes": len(notificacoes),
             "sugestao_texto": sugestao_texto,
         }

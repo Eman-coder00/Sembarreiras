@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpResponse
@@ -21,6 +23,9 @@ from equipamentos.services import EquipamentoService
 class EquipamentoListView(LoginRequiredMixin, View):
     def get(self, request):
         titular_cpf = request.GET.get("titular_cpf", "").strip() or None
+        sem_vinculo_aprovado = False
+        solicitacoes: Any = []
+        alertas: Any = []
         try:
             beneficiario = ContaService.obter_titular_autorizado(
                 request.user, titular_cpf=titular_cpf
@@ -35,7 +40,10 @@ class EquipamentoListView(LoginRequiredMixin, View):
             PermissaoNegadaTitular,
             SolicitacaoEquipamentoNaoEncontrada,
         ) as exc:
-            raise Http404 from exc
+            solicitacoes = []
+            alertas = []
+            sem_vinculo_aprovado = True
+            messages.warning(request, str(exc))
 
         return render(
             request,
@@ -43,6 +51,7 @@ class EquipamentoListView(LoginRequiredMixin, View):
             {
                 "solicitacoes": solicitacoes,
                 "alertas": alertas,
+                "sem_vinculo_aprovado": sem_vinculo_aprovado,
             },
         )
 
@@ -81,9 +90,7 @@ class EquipamentoCreateView(LoginRequiredMixin, View):
                 data_emissao_laudo=dados.get("data_emissao_laudo"),
                 titular_cpf=dados.get("titular_cpf") or None,
             )
-        except SolicitacaoEquipamentoNaoEncontrada as exc:
-            raise Http404 from exc
-        except AnexoInvalido as exc:
+        except (SolicitacaoEquipamentoNaoEncontrada, AnexoInvalido) as exc:
             form.add_error(None, str(exc))
             messages.error(request, str(exc))
             return render(

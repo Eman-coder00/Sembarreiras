@@ -15,16 +15,26 @@
 
     {% if vinculo.status == 1 %}
       <div class="cartao cartao-alerta">
-        <h3 class="titulo-secao">Confirmação Expressa com Código OTP</h3>
         {% if user == vinculo.titular_pcd %}
-          <p>Código OTP gerado para aprovação: <strong>{{ vinculo.codigo_otp }}</strong></p>
+          <h3 class="titulo-secao">Código de Autorização para o Cuidador</h3>
+          <p style="font-size:0.88rem;margin:0.25rem 0 0.75rem;">
+            Informe este código OTP ao cuidador acima somente se você autorizar o acompanhamento da sua conta:
+          </p>
+          <div style="background:var(--fundo);border:2px dashed var(--destaque);border-radius:12px;padding:0.85rem;text-align:center;font-size:1.75rem;font-weight:900;letter-spacing:0.25em;color:var(--destaque);">
+            {{ vinculo.codigo_otp }}
+          </div>
+        {% else %}
+          <h3 class="titulo-secao">Confirmação Expressa com Código OTP</h3>
+          <p style="font-size:0.88rem;margin:0.25rem 0 0.75rem;">
+            Solicite ao Titular PCD o código de 6 dígitos exibido na conta dele e digite abaixo para liberar o acesso:
+          </p>
+          <form method="post" action="{% url 'contas:confirmar_vinculo' vinculo.id %}">
+            {% csrf_token %}
+            {{ form_otp.codigo_otp.label_tag }}
+            {{ form_otp.codigo_otp }}
+            <button type="submit" class="botao">Validar e Estabelecer Vínculo</button>
+          </form>
         {% endif %}
-        <form method="post" action="{% url 'contas:confirmar_vinculo' vinculo.id %}">
-          {% csrf_token %}
-          {{ form_otp.codigo_otp.label_tag }}
-          {{ form_otp.codigo_otp }}
-          <button type="submit" class="botao">Validar e Estabelecer Vínculo</button>
-        </form>
       </div>
     {% endif %}
 

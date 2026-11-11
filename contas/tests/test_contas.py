@@ -362,3 +362,50 @@ class ContasServiceEViewsTests(TestCase):
         self.assertContains(resp_cuidador, "Minha Conta")
         self.assertNotContains(resp_cuidador, "Ajustes de<br>Acessibilidade")
 
+    def test_notificacoes_exibe_alerta_panico_para_cuidador_contato_emergencia(self):
+        from emergencia.services import ContatoEmergenciaService, PanicoService
+
+        vinculo = VinculoCuidadorService.cadastrar_cuidador_e_solicitar_vinculo(
+            cpf_cuidador=CPF_CUIDADOR_VALIDO,
+            nome_completo="Maria Cuidadora",
+            email="maria.alerta@email.com",
+            telefone="(82) 98877-6655",
+            senha="Password123",
+            cpf_titular_pcd=CPF_PCD_VALIDO,
+            grau_parentesco=GrauParentescoVinculo.CUIDADOR_PROFISSIONAL,
+        )
+        VinculoCuidadorService.confirmar_vinculo(
+            vinculo_id=vinculo.pk,
+            codigo_otp=vinculo.codigo_otp,
+            solicitante=self.titular,
+        )
+
+        # Cadastra o cuidador (mesmo telefone) como contato de emergência do titular
+        ContatoEmergenciaService.criar(
+            titular_pcd=self.titular,
+            nome="Maria Cuidadora",
+            telefone="(82) 98877-6655",
+            parentesco="CUIDADOR",
+            prioridade=1,
+        )
+
+        ocorrencia = PanicoService.iniciar_acionamento(
+            self.titular, latitude=-9.64985, longitude=-35.70895
+        )
+        PanicoService.confirmar_disparo(
+            ocorrencia_id=ocorrencia.id,
+            titular_pcd=self.titular,
+            latitude=-9.64985,
+            longitude=-35.70895,
+        )
+
+        self.client.force_login(vinculo.cuidador)
+        resp_home = self.client.get(reverse("contas:home"))
+        self.assertEqual(resp_home.status_code, 200)
+        self.assertContains(resp_home, "Botão de Pânico acionado")
+
+        resp_notif = self.client.get(reverse("contas:notificacoes"))
+        self.assertEqual(resp_notif.status_code, 200)
+        self.assertContains(resp_notif, ocorrencia.codigo)
+        self.assertContains(resp_notif, "Botão de Pânico acionado")
+
