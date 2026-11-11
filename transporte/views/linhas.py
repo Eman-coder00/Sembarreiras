@@ -4,7 +4,10 @@ from django.shortcuts import render
 from django.views import View
 
 from transporte.exceptions import PontoParadaNaoEncontrado, VeiculoNaoEncontrado
-from transporte.forms import FiltroLinhasAcessiveisForm
+from transporte.forms import (
+    FiltroLinhasAcessiveisForm,
+    FiltroMapaAcessivelForm,
+)
 from transporte.services import TransporteUrbanoService
 
 
@@ -44,6 +47,24 @@ class LinhaAcessivelConsultaView(LoginRequiredMixin, View):
         )
 
 
+class MapaAcessivelView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = FiltroMapaAcessivelForm(request.GET or None)
+        busca = ""
+        if form.is_valid():
+            busca = form.cleaned_data.get("busca") or ""
+
+        dados = TransporteUrbanoService.obter_dados_mapa_acessivel(termo=busca)
+        return render(
+            request,
+            "transporte/mapa.html",
+            {
+                "form": form,
+                **dados,
+            },
+        )
+
+
 class VeiculoRastreamentoView(LoginRequiredMixin, View):
     def get(self, request, prefixo: str):
         ponto_id_str = request.GET.get("ponto_id", "").strip()
@@ -62,4 +83,3 @@ class VeiculoRastreamentoView(LoginRequiredMixin, View):
             "transporte/rastrear.html",
             dados,
         )
-

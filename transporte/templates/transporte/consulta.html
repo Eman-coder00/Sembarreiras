@@ -6,7 +6,10 @@
 
 {% block content %}
 <section class="cartao">
-  <h2 class="titulo-secao">Buscar Linhas com Elevador / Rampa Ativa</h2>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+    <h2 class="titulo-secao" style="margin:0;">Buscar Linhas com Elevador / Rampa Ativa</h2>
+    <a href="{% url 'transporte:mapa' %}" class="botao-link">🗺️ Mapa</a>
+  </div>
   <form method="get">
     {{ form.lat }}
     {{ form.lon }}

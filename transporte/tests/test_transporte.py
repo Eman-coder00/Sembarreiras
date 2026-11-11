@@ -131,3 +131,20 @@ class TransporteUrbanoTest(TestCase):
         )
         self.assertEqual(resp_inop.status_code, 404)
 
+    def test_mapa_acessivel_lista_pontos_de_parada_e_veiculos_ativos(self):
+        self.client.force_login(self.usuario)
+        resp = self.client.get(reverse("transporte:mapa"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Parada ADEFAL Farol")
+        self.assertContains(resp, "MCZ-1042")
+        self.assertNotContains(resp, "MCZ-9999")
+
+        dados_filtrados = TransporteUrbanoService.obter_dados_mapa_acessivel(
+            termo="Farol"
+        )
+        self.assertEqual(len(dados_filtrados["pontos_mapa"]), 1)
+        self.assertEqual(
+            dados_filtrados["pontos_mapa"][0]["ponto"].nome,
+            "Parada ADEFAL Farol",
+        )
+

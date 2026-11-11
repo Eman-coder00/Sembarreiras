@@ -30,3 +30,10 @@ class FiltroLinhasAcessiveisForm(forms.Form):
     lat = forms.FloatField(required=False, widget=forms.HiddenInput())
     lon = forms.FloatField(required=False, widget=forms.HiddenInput())
 
+
+class FiltroMapaAcessivelForm(forms.Form):
+    busca = forms.CharField(
+        label="Buscar por Bairro, Ponto de Parada ou Sede ADEFAL",
+        max_length=100,
+        required=False,
+    )

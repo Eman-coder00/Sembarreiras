@@ -51,6 +51,7 @@
 | Método | Regra |
 |---|---|
 | `buscar_veiculos_acessiveis(origem_texto="", linha_termo="", latitude=None, longitude=None, raio_metros=2000)` | Filtra obrigatoriamente `acessibilidade_ativa=True` e `linha__ativa=True`. Aplica filtro opcional por código/nome/itinerário da linha e proximidade do ponto de parada dentro de `raio_metros`. Retorna lista ordenada pelo menor tempo estimado de chegada (ETA) |
+| `obter_dados_mapa_acessivel(termo="")` | Lista pontos de parada (`PontoParada`) e veículos com acessibilidade ativa (`acessibilidade_ativa=True`, `linha__ativa=True`), aplicando filtro opcional por bairro/ponto e projetando coordenadas normalizadas `(x, y)` para o mapa local em SVG |
 | `rastrear_veiculo(prefixo, ponto_id=None)` | Retorna os dados do veículo adaptado (`acessibilidade_ativa=True`, ou levanta `VeiculoNaoEncontrado`), distância em metros até o ponto de parada e o ETA calculado |
 | `calcular_eta_minutos(lat_veiculo, lon_veiculo, lat_ponto, lon_ponto, velocidade_kmh)` | Calcula a distância geodésica aproximada (fórmula de Haversine) em metros e retorna `(distancia_metros, eta_minutos)` com mínimo de 1 minuto quando em deslocamento |
 
@@ -59,11 +60,13 @@
 | Rota | Nome | View | Métodos | Acesso |
 |---|---|---|---|---|
 | `/transporte/` | `transporte:consulta` | `LinhaAcessivelConsultaView` | GET | Autenticado |
+| `/transporte/mapa/` | `transporte:mapa` | `MapaAcessivelView` | GET | Autenticado |
 | `/transporte/veiculos/<str:prefixo>/` | `transporte:rastrear` | `VeiculoRastreamentoView` | GET | Autenticado |
 
 ## Comportamento
 
 - **`LinhaAcessivelConsultaView`**: recebe filtros via query string (`origem`, `linha`, `raio`, `lat`, `lon`), chama `TransporteUrbanoService.buscar_veiculos_acessiveis` e exibe apenas veículos com elevador ou rampa funcional comprovada, ordenados pelo tempo estimado de chegada.
+- **`MapaAcessivelView`**: renderiza o mapa interativo com **Leaflet + OpenStreetMap** (sem chave de API) e fallback automático para mapa local em SVG quando offline ([ADR 0004](../adr/0004-simulacao-local-de-integracoes-externas.md)), plotando pontos de parada (`PontoParada`), a Sede da ADEFAL e ônibus acessíveis ativos, com filtro por bairro/parada, geolocalização opcional e atalhos para listar veículos próximos de cada ponto.
 - **`VeiculoRastreamentoView`**: exibe a posição atual do ônibus adaptado selecionado, a distância em metros até o ponto de parada e o indicador destacado `"Próximo ônibus adaptado chega em aproximadamente X minutos"`, sem vincular a identidade pessoal do usuário na consulta de trânsito (`RS009`).
 
 ## Testes
@@ -72,4 +75,5 @@
 - [x] O filtro por número da linha ou destino/bairro retorna apenas os veículos correspondentes dentro do raio informado.
 - [x] `calcular_eta_minutos` retorna a distância em metros e o tempo estimado em minutos de forma consistente com a velocidade média.
 - [x] `rastrear_veiculo` exibe a distância e a mensagem `"Próximo ônibus adaptado chega em aproximadamente X minutos"` para veículo acessível, e retorna 404 para prefixo inexistente ou sem acessibilidade ativa.
+- [x] `MapaAcessivelView` e `obter_dados_mapa_acessivel` exibem pontos de parada acessíveis e apenas veículos com `acessibilidade_ativa=True`, permitindo filtragem por bairro/ponto.
 

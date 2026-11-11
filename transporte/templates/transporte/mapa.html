@@ -1,0 +1,382 @@
+{% extends "base.html" %}
+{% block title %}Mapa Acessível · SemBarreiras{% endblock %}
+{% block titulo_tela %}Mapa Acessível{% endblock %}
+{% block nav_transporte %}ativo{% endblock %}
+
+{% block extra_head %}
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  >
+  <style>
+    #mapa-leaflet {
+      width: 100%;
+      height: 320px;
+      border-radius: 12px;
+      border: 1px solid var(--borda);
+      background: #091322;
+      display: none;
+      z-index: 1;
+    }
+    .marcador-sembarreiras {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 16px;
+      border: 2.5px solid #04130e;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+    }
+    .marcador-adefal { background: #00d492; }
+    .marcador-ponto { background: #38bdf8; }
+    .marcador-onibus { background: #f59e0b; }
+    .marcador-usuario { background: #ef4444; color: #ffffff; }
+    .leaflet-popup-content-wrapper {
+      background: #131c2e;
+      color: #f1f5f9;
+      border: 1px solid #263552;
+      border-radius: 12px;
+    }
+    .leaflet-popup-tip {
+      background: #131c2e;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<section class="cartao">
+  <h2 class="titulo-secao">Pontos de Embarque Acessíveis e Locais ADEFAL</h2>
+  <form method="get">
+    <label for="{{ form.busca.id_for_label }}">{{ form.busca.label }}</label>
+    {{ form.busca }}
+    <button type="submit" class="botao botao-secundario">Filtrar Pontos no Mapa</button>
+  </form>
+</section>
+
+<section class="cartao cartao-destaque">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+    <h2 class="titulo-secao" style="margin:0;">Mapa Interativo (Maceió / ADEFAL)</h2>
+    <span class="selo">{{ pontos_mapa|length }} ponto(s)</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.65rem;">
+    <button type="button" id="btn-minha-localizacao" class="botao botao-secundario" style="font-size:0.84rem;padding:0.5rem;">
+      📍 Minha Posição
+    </button>
+    <button type="button" id="btn-centralizar-adefal" class="botao botao-secundario" style="font-size:0.84rem;padding:0.5rem;">
+      🏥 Centralizar ADEFAL
+    </button>
+  </div>
+
+  <!-- Mapa interativo Leaflet + OpenStreetMap -->
+  <div id="mapa-leaflet" aria-label="Mapa interativo com pontos de parada acessíveis e ônibus adaptados em Maceió"></div>
+
+  <!-- Fallback automático em SVG caso esteja sem conexão externa -->
+  <div id="mapa-svg-fallback" style="background:#08101c;border:1px solid var(--borda);border-radius:14px;padding:0.5rem;">
+    <svg viewBox="0 0 380 230" width="100%" style="display:block;border-radius:10px;background:#091322;" role="img" aria-label="Mapa local com pontos de parada acessíveis e ônibus adaptados">
+      <g stroke="#182840" stroke-width="1">
+        <line x1="0" y1="57" x2="380" y2="57" />
+        <line x1="0" y1="115" x2="380" y2="115" />
+        <line x1="0" y1="173" x2="380" y2="173" />
+        <line x1="95" y1="0" x2="95" y2="230" />
+        <line x1="190" y1="0" x2="190" y2="230" />
+        <line x1="285" y1="0" x2="285" y2="230" />
+      </g>
+      <path d="M24 195 Q 185 110 355 42" stroke="#1d4ed8" stroke-width="4" stroke-dasharray="6 5" fill="none" opacity="0.65" />
+
+      {% for item in veiculos_mapa %}
+        <g
+          class="marcador-svg-interativo"
+          style="cursor:pointer;"
+          data-titulo="Ônibus {{ item.veiculo.prefixo }} · Linha {{ item.linha.codigo }}"
+          data-subtitulo="{{ item.linha.nome }}"
+          data-coords="GPS: {{ item.veiculo.latitude_atual }}, {{ item.veiculo.longitude_atual }}"
+        >
+          <circle cx="{{ item.x }}" cy="{{ item.y }}" r="12" fill="#f59e0b" stroke="#0f172a" stroke-width="2" />
+          <text x="{{ item.x }}" y="{{ item.y|add:'4' }}" text-anchor="middle" font-size="11" fill="#0f172a" font-weight="900">🚌</text>
+        </g>
+      {% endfor %}
+
+      {% for item in pontos_mapa %}
+        <g
+          class="marcador-svg-interativo"
+          style="cursor:pointer;"
+          data-titulo="{{ item.ponto.nome }}"
+          data-subtitulo="{{ item.ponto.logradouro }} — {{ item.ponto.bairro }}"
+          data-coords="Coordenadas: {{ item.ponto.latitude }}, {{ item.ponto.longitude }}"
+        >
+          <circle cx="{{ item.x }}" cy="{{ item.y }}" r="14" fill="{% if item.eh_adefal %}#00d492{% else %}#38bdf8{% endif %}" stroke="#04130e" stroke-width="2.5" />
+          <text x="{{ item.x }}" y="{{ item.y|add:'4' }}" text-anchor="middle" font-size="11" fill="#04130e" font-weight="900">{% if item.eh_adefal %}🏥{% else %}♿{% endif %}</text>
+        </g>
+      {% endfor %}
+    </svg>
+  </div>
+
+  <div id="info-marcador-mapa" style="margin-top:0.55rem;margin-bottom:0.75rem;padding:0.55rem 0.7rem;background:var(--superficie);border:1px solid var(--borda);border-radius:10px;font-size:0.84rem;">
+    <strong style="color:var(--destaque);display:block;">Toque em um marcador no mapa</strong>
+    <span style="color:var(--suave);">🏥 Sede ADEFAL · ♿ Ponto Acessível · 🚌 Ônibus Adaptado Ativo · 📍 Sua Posição</span>
+  </div>
+
+  <a href="{% url 'transporte:consulta' %}" class="botao">🚌 Ver Ônibus em Tempo Real (Frota e ETA)</a>
+</section>
+
+<section class="cartao">
+  <h2 class="titulo-secao">Pontos de Parada e Unidades Mapeadas</h2>
+  {% for item in pontos_mapa %}
+    <div class="cartao" style="margin-bottom:0.85rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+        <strong>{% if item.eh_adefal %}🏥{% else %}♿{% endif %} {{ item.ponto.nome }}</strong>
+        <span class="selo">{{ item.ponto.bairro }}</span>
+      </div>
+      <p style="font-size:0.88rem;margin:0.45rem 0;">
+        <strong>Endereço:</strong> {{ item.ponto.logradouro }}<br>
+        <strong>Coordenadas GPS:</strong> {{ item.ponto.latitude }}, {{ item.ponto.longitude }}<br>
+        <strong>Linhas Adaptadas no Ponto:</strong>
+        {% for ln in item.linhas %}
+          <span class="selo" style="margin-top:0.25rem;">{{ ln.codigo }} - {{ ln.nome }}</span>
+        {% empty %}
+          Nenhuma linha ativa vinculada
+        {% endfor %}
+      </p>
+      <div style="display:grid;gap:0.5rem;margin-top:0.65rem;">
+        <button type="button" class="botao btn-focar-ponto" data-ponto-id="{{ item.ponto.id }}">
+          🎯 Focar este Ponto no Mapa
+        </button>
+        <a href="{% url 'transporte:consulta' %}?origem={{ item.ponto.bairro|urlencode }}&lat={{ item.ponto.latitude }}&lon={{ item.ponto.longitude }}&raio=5000" class="botao botao-secundario">
+          🚌 Ver Ônibus Adaptados Próximos deste Ponto
+        </a>
+        <a href="https://maps.google.com/?q={{ item.ponto.latitude }},{{ item.ponto.longitude }}" target="_blank" rel="noopener noreferrer" class="botao-link" style="text-align:center;">
+          🗺️ Abrir Localização no Aplicativo de Mapas
+        </a>
+      </div>
+    </div>
+  {% empty %}
+    <p>Nenhum ponto de parada encontrado para o filtro informado.</p>
+  {% endfor %}
+</section>
+
+{{ mapa_dados|json_script:"dados-mapa-acessivel" }}
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+  function selecionarMarcadorOffline(titulo, subtitulo, coords) {
+    var box = document.getElementById("info-marcador-mapa");
+    if (!box) return;
+    box.textContent = "";
+    var strong = document.createElement("strong");
+    strong.style.color = "var(--destaque)";
+    strong.style.display = "block";
+    strong.textContent = titulo;
+    var span1 = document.createElement("span");
+    span1.style.display = "block";
+    span1.textContent = subtitulo;
+    var span2 = document.createElement("span");
+    span2.style.color = "var(--suave)";
+    span2.style.fontSize = "0.78rem";
+    span2.textContent = coords;
+    box.appendChild(strong);
+    box.appendChild(span1);
+    box.appendChild(span2);
+  }
+
+  window.focarPontoNoMapa = function () {
+    var fallback = document.getElementById("mapa-svg-fallback");
+    if (fallback) fallback.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  document.querySelectorAll(".marcador-svg-interativo").forEach(function (el) {
+    el.addEventListener("click", function () {
+      selecionarMarcadorOffline(
+        el.getAttribute("data-titulo") || "",
+        el.getAttribute("data-subtitulo") || "",
+        el.getAttribute("data-coords") || ""
+      );
+    });
+  });
+
+  document.querySelectorAll(".btn-focar-ponto").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var idPonto = Number(btn.getAttribute("data-ponto-id"));
+      window.focarPontoNoMapa(idPonto);
+    });
+  });
+
+  (function () {
+    var scriptEl = document.getElementById("dados-mapa-acessivel");
+    if (!scriptEl || typeof L === "undefined") {
+      return;
+    }
+
+    var dados = JSON.parse(scriptEl.textContent);
+    var divLeaflet = document.getElementById("mapa-leaflet");
+    var divFallback = document.getElementById("mapa-svg-fallback");
+    if (!divLeaflet) return;
+
+    divLeaflet.style.display = "block";
+    if (divFallback) divFallback.style.display = "none";
+
+    var mapa = L.map("mapa-leaflet").setView(dados.centro || [-9.64985, -35.70895], 13);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap"
+    }).addTo(mapa);
+
+    function criarIcone(emoji, classe) {
+      return L.divIcon({
+        className: "",
+        html: '<div class="marcador-sembarreiras ' + classe + '">' + emoji + "</div>",
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
+        popupAnchor: [0, -16]
+      });
+    }
+
+    function criarPopupPonto(p) {
+      var wrap = document.createElement("div");
+      wrap.style.minWidth = "190px";
+      var titulo = document.createElement("strong");
+      titulo.style.color = "#00d492";
+      titulo.style.display = "block";
+      titulo.textContent = p.nome;
+      var end = document.createElement("p");
+      end.style.margin = "4px 0";
+      end.style.fontSize = "12px";
+      end.textContent = p.logradouro + " — " + p.bairro;
+      var linhas = document.createElement("p");
+      linhas.style.margin = "4px 0 8px";
+      linhas.style.fontSize = "12px";
+      linhas.style.color = "#94a3b8";
+      linhas.textContent = p.linhas.length ? "Linhas: " + p.linhas.join(", ") : "Sem linhas ativas";
+      var link = document.createElement("a");
+      link.href = p.url_onibus;
+      link.textContent = "🚌 Ver ônibus próximos";
+      link.style.display = "inline-block";
+      link.style.padding = "6px 10px";
+      link.style.background = "#00d492";
+      link.style.color = "#04130e";
+      link.style.borderRadius = "8px";
+      link.style.fontWeight = "700";
+      link.style.fontSize = "12px";
+      wrap.appendChild(titulo);
+      wrap.appendChild(end);
+      wrap.appendChild(linhas);
+      wrap.appendChild(link);
+      return wrap;
+    }
+
+    function criarPopupVeiculo(v) {
+      var wrap = document.createElement("div");
+      wrap.style.minWidth = "190px";
+      var titulo = document.createElement("strong");
+      titulo.style.color = "#f59e0b";
+      titulo.style.display = "block";
+      titulo.textContent = "🚌 " + v.prefixo + " · Linha " + v.linha_codigo;
+      var nome = document.createElement("p");
+      nome.style.margin = "4px 0";
+      nome.style.fontSize = "12px";
+      nome.textContent = v.linha_nome;
+      var eq = document.createElement("p");
+      eq.style.margin = "4px 0 8px";
+      eq.style.fontSize = "12px";
+      eq.style.color = "#94a3b8";
+      eq.textContent = v.equipamento + " · " + v.vagas_cadeirante + " vaga(s)";
+      var link = document.createElement("a");
+      link.href = v.url_rastrear;
+      link.textContent = "📍 Rastrear ETA em tempo real";
+      link.style.display = "inline-block";
+      link.style.padding = "6px 10px";
+      link.style.background = "#38bdf8";
+      link.style.color = "#04130e";
+      link.style.borderRadius = "8px";
+      link.style.fontWeight = "700";
+      link.style.fontSize = "12px";
+      wrap.appendChild(titulo);
+      wrap.appendChild(nome);
+      wrap.appendChild(eq);
+      wrap.appendChild(link);
+      return wrap;
+    }
+
+    var marcadoresPorPonto = {};
+    var limites = [];
+
+    (dados.pontos || []).forEach(function (p) {
+      var icone = p.eh_adefal
+        ? criarIcone("🏥", "marcador-adefal")
+        : criarIcone("♿", "marcador-ponto");
+      var marcador = L.marker([p.latitude, p.longitude], { icon: icone }).addTo(mapa);
+      marcador.bindPopup(criarPopupPonto(p));
+      marcador.on("click", function () {
+        selecionarMarcadorOffline(p.nome, p.logradouro + " — " + p.bairro, "GPS: " + p.latitude + ", " + p.longitude);
+      });
+      marcadoresPorPonto[p.id] = { marcador: marcador, ponto: p };
+      limites.push([p.latitude, p.longitude]);
+    });
+
+    (dados.veiculos || []).forEach(function (v) {
+      var marcador = L.marker([v.latitude, v.longitude], {
+        icon: criarIcone("🚌", "marcador-onibus")
+      }).addTo(mapa);
+      marcador.bindPopup(criarPopupVeiculo(v));
+      marcador.on("click", function () {
+        selecionarMarcadorOffline("Ônibus " + v.prefixo + " · Linha " + v.linha_codigo, v.linha_nome, v.equipamento);
+      });
+      limites.push([v.latitude, v.longitude]);
+    });
+
+    if (limites.length > 1) {
+      mapa.fitBounds(limites, { padding: [28, 28] });
+    }
+
+    window.focarPontoNoMapa = function (pontoId) {
+      var item = marcadoresPorPonto[pontoId];
+      if (!item) return;
+      mapa.setView([item.ponto.latitude, item.ponto.longitude], 15, { animate: true });
+      item.marcador.openPopup();
+      divLeaflet.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+
+    var marcadorUsuario = null;
+    var btnMinhaPos = document.getElementById("btn-minha-localizacao");
+    if (btnMinhaPos) {
+      btnMinhaPos.addEventListener("click", function () {
+        if (!navigator.geolocation) {
+          selecionarMarcadorOffline("Geolocalização indisponível", "Seu navegador não suporta captura de GPS.", "");
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          function (pos) {
+            var lat = pos.coords.latitude;
+            var lng = pos.coords.longitude;
+            if (marcadorUsuario) {
+              marcadorUsuario.setLatLng([lat, lng]);
+            } else {
+              marcadorUsuario = L.marker([lat, lng], {
+                icon: criarIcone("📍", "marcador-usuario")
+              }).addTo(mapa);
+              marcadorUsuario.bindPopup("Você está aqui");
+            }
+            mapa.setView([lat, lng], 15, { animate: true });
+            marcadorUsuario.openPopup();
+            selecionarMarcadorOffline("Sua localização atual", "Mapa centralizado via GPS do dispositivo", lat.toFixed(5) + ", " + lng.toFixed(5));
+          },
+          function () {
+            selecionarMarcadorOffline("Permissão de GPS negada", "Centralizando na Sede ADEFAL — Farol.", "");
+            mapa.setView(dados.centro || [-9.64985, -35.70895], 14);
+          }
+        );
+      });
+    }
+
+    var btnAdefal = document.getElementById("btn-centralizar-adefal");
+    if (btnAdefal) {
+      btnAdefal.addEventListener("click", function () {
+        mapa.setView(dados.centro || [-9.64985, -35.70895], 15, { animate: true });
+      });
+    }
+  })();
+</script>
+{% endblock %}

@@ -1,6 +1,11 @@
-from .linhas import LinhaAcessivelConsultaView, VeiculoRastreamentoView
+from .linhas import (
+    LinhaAcessivelConsultaView,
+    MapaAcessivelView,
+    VeiculoRastreamentoView,
+)
 
 __all__ = [
     "LinhaAcessivelConsultaView",
+    "MapaAcessivelView",
     "VeiculoRastreamentoView",
 ]

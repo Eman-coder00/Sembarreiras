@@ -103,6 +103,8 @@ Base local de CEPs para consulta rápida sem internet ([ADR 0004](../adr/0004-si
 | `inativar_conta_lgpd(usuario, senha_atual)` | Valida `senha_atual`, altera `status_cadastro = INATIVO`, `is_active = False` e mascara nome, e-mail, telefone e endereço preservando o ID para auditoria |
 | `atualizar_acessibilidade(usuario, ...)` | Atualiza `tipo_deficiencia`, `equipamentos_apoio`, `tamanho_toque`, `timeout_tela` e `alto_contraste` no `PerfilPCD` |
 | `obter_titular_autorizado(solicitante, titular_cpf=None)` | Se `solicitante.papel == "PCD"`, retorna o próprio `solicitante`. Se for `CUIDADOR`, verifica vínculo `APROVADO` com o titular (ou levanta `PermissaoNegadaTitular`) |
+| `listar_notificacoes(usuario)` | Reúne avisos gerais: disparos de pânico para cuidadores cadastrados nos contatos de emergência do titular, alerta de ausência de contatos para PCD, vínculos OTP pendentes, prazos/retiradas de equipamentos e próximas consultas confirmadas |
+| `obter_resumo_home(usuario)` | Calcula o contexto dinâmico da Home adaptada por perfil (`PCD` ou `CUIDADOR`), contagem de notificações, alerta de pânico ao cuidador e texto de ação sugerida |
 
 ### `AutenticacaoService`
 
@@ -125,7 +127,9 @@ Base local de CEPs para consulta rápida sem internet ([ADR 0004](../adr/0004-si
 
 | Rota | Nome | View | Métodos | Acesso |
 |---|---|---|---|---|
-| `/` | `contas:painel` | `PainelInicialView` | GET | Autenticado |
+| `/` | `contas:home` | `HomeView` | GET | Autenticado |
+| `/notificacoes/` | `contas:notificacoes` | `NotificacoesView` | GET | Autenticado |
+| `/conta/` | `contas:painel` | `PainelInicialView` | GET | Autenticado |
 | `/entrar/` | `contas:entrar` | `EntrarView` | GET, POST | Público |
 | `/sair/` | `contas:sair` | `SairView` | POST | Autenticado |
 | `/cadastro/pcd/` | `contas:cadastro_pcd` | `CadastroPCDView` | GET, POST | Público |
@@ -142,7 +146,10 @@ Base local de CEPs para consulta rápida sem internet ([ADR 0004](../adr/0004-si
 
 ## Comportamento das Views principais
 
-- **`EntrarView`**: exige seleção de perfil (`PCD` ou `CUIDADOR`), identificador (CPF ou e-mail) e senha. No sucesso, chama `login(request, usuario)`, aplica `request.session.set_expiry(None)` caso "Manter conectado" não esteja marcado (ou expiração de 10 minutos se `timeout_tela == PROLONGADO_10M`) e redireciona para `contas:painel`.
+- **`HomeView`**: hub inicial pós-login que adapta dinamicamente a grade de atalhos conforme o perfil (`12` botões para Titular `PCD` e `9` botões para `CUIDADOR`), acendendo indicadores laranja para ações sugeridas e um alerta crítico quando um cuidador cadastrado nos contatos de emergência possui disparo de pânico recente do titular.
+- **`NotificacoesView`**: central unificada de avisos gerais acionada pelo botão de notificações da Home (emergências ao cuidador, vínculos OTP pendentes, prazos de equipamentos e consultas confirmadas).
+- **`EntrarView`**: exibe seletor de perfil em duas opções lado a lado (`PCD` ou `CUIDADOR`), identificador (CPF ou e-mail) e senha. No sucesso, chama `login(request, usuario)`, aplica `request.session.set_expiry(None)` caso "Manter conectado" não esteja marcado (ou expiração de 10 minutos se `timeout_tela == PROLONGADO_10M`) e redireciona para `contas:home`.
+- **`VinculoListView`**: separa os papéis na tela de vínculos pendentes — o Titular PCD visualiza apenas o código OTP de autorização em destaque, enquanto o Cuidador visualiza o formulário para digitar o código e confirmar o vínculo.
 - **`CadastroPCDView`**: valida CPF (dígitos verificadores), senha alfanumérica de no mínimo 8 caracteres e endereço; se o CEP não existir na base local, exibe "Endereço não localizado" e permite preenchimento manual.
 - **`PerfilEditarView`**: mantém o CPF somente leitura e exige a senha atual ao alterar telefone ou endereço.
 
@@ -157,4 +164,6 @@ Base local de CEPs para consulta rápida sem internet ([ADR 0004](../adr/0004-si
 - [x] Alteração de telefone ou endereço exige senha atual e gera registro em `LogAuditoriaConta`; o CPF nunca é alterado.
 - [x] Recuperação de senha com token válido de 6 dígitos dentro de 15 minutos redefine a senha e invalida token expirado ou já usado.
 - [x] Inativação de conta altera status para `INATIVO`, mascara dados pessoais identificáveis e impede novo login.
+- [x] `HomeView` exibe a grade adaptada ao perfil (`PCD` vs `CUIDADOR`) com os destaques dinâmicos de ação sugerida.
+- [x] `NotificacoesView` exibe aviso crítico de Botão de Pânico na Home e em `/notificacoes/` para o cuidador vinculado cadastrado nos contatos de emergência do titular.
 

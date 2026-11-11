@@ -52,8 +52,8 @@
 {% if not eh_cuidador %}
   <!-- GRADE DE 12 FUNÇÕES PARA O PERFIL TITULAR PCD -->
   <div class="grade-home">
-    <!-- 1. Mapa Acessível -->
-    <a href="{% url 'transporte:consulta' %}" class="bloco-home">
+    <!-- 1. Mapa Acessível (Pontos de Parada e Unidades ADEFAL) -->
+    <a href="{% url 'transporte:mapa' %}" class="bloco-home">
       <div class="icone-bloco-home">
         <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <polygon points="8,16 24,10 40,18 56,12 56,46 40,52 24,44 8,50" fill="#34d399" stroke="#064e3b" stroke-width="2.5"/>
@@ -71,7 +71,7 @@
     </a>
 
     <!-- 2. Ônibus em Tempo Real -->
-    <a href="{% url 'transporte:consulta' %}?raio=5000" class="bloco-home">
+    <a href="{% url 'transporte:consulta' %}" class="bloco-home">
       <div class="icone-bloco-home">
         <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <rect x="14" y="14" width="32" height="34" rx="6" fill="#eab308" stroke="#0f172a" stroke-width="2.5"/>

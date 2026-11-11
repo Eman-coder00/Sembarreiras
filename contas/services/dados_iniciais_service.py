@@ -150,6 +150,28 @@ class DadosIniciaisService:
         )
         ponto_trapiche.linhas.set([linhas_map["051"], linhas_map["201"]])
 
+        ponto_centenario, _ = PontoParada.objects.update_or_create(
+            nome="Praça Centenário — Farol",
+            defaults={
+                "logradouro": "Av. Fernandes Lima, 450",
+                "bairro": "Farol",
+                "latitude": -9.65620,
+                "longitude": -35.72480,
+            },
+        )
+        ponto_centenario.linhas.set(list(linhas_map.values()))
+
+        ponto_pajucara, _ = PontoParada.objects.update_or_create(
+            nome="Orla de Pajuçara — Ponto Acessível",
+            defaults={
+                "logradouro": "Av. Doutor Antônio Gouveia, 1100",
+                "bairro": "Pajuçara",
+                "latitude": -9.66840,
+                "longitude": -35.71450,
+            },
+        )
+        ponto_pajucara.linhas.set([linhas_map["704"], linhas_map["201"]])
+
         veiculos_dados = [
             (
                 "MCZ-1042",

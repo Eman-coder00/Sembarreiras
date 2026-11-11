@@ -1,4 +1,9 @@
-from .transporte_forms import FiltroLinhasAcessiveisForm
+from .transporte_forms import (
+    FiltroLinhasAcessiveisForm,
+    FiltroMapaAcessivelForm,
+)
 
-__all__ = ["FiltroLinhasAcessiveisForm"]
-
+__all__ = [
+    "FiltroLinhasAcessiveisForm",
+    "FiltroMapaAcessivelForm",
+]
