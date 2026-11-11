@@ -1,6 +1,6 @@
 # Spec 0006: Empréstimo de equipamentos de apoio e validação de laudos
 
-- **Status:** Proposto
+- **Status:** Implementado
 - **Requisitos:** RF-19 a RF-22, RNF-03 e RNF-04 do [PRD 0001](../prd/0001-sem-barreiras.md)
 - **Decisões:** [ADR 0001](../adr/0001-mvt-com-camada-de-service.md), [ADR 0003](../adr/0003-postgresql-como-banco-de-dados.md), [ADR 0005](../adr/0005-armazenamento-e-validacao-de-anexos.md)
 - **Depende de:** [Spec 0002](0002-contas-vinculo-e-acessibilidade.md)
@@ -75,10 +75,10 @@
 
 ## Testes
 
-- [ ] Submissão válida com PDF/JPG/PNG cria solicitação `EM_ANALISE`, gera protocolo `EQP-AAAAMMDD-XXXX` e registra evento inicial na linha do tempo.
-- [ ] Arquivo com extensão `.exe`/`.sh` ou arquivo `.pdf` falso (com conteúdo de script/texto sem cabeçalho `%PDF-`) é rejeitado com `AnexoInvalido` (`RS008`).
-- [ ] Laudo acima de 10 MB ou comprovante acima de 5 MB é rejeitado com `AnexoInvalido`.
-- [ ] Download de laudo médico (`EquipamentoAnexoDownloadView`) funciona para o titular PCD, seu cuidador vinculado e `is_staff`, mas retorna 404 para outros usuários autenticados e redireciona visitantes (`RS001`).
-- [ ] A evolução de status pela triagem da ADEFAL atualiza a linha do tempo consultada pelo titular e pelo cuidador.
-- [ ] Empréstimos a 7 dias e a 2 dias do vencimento geram alertas de devolução, permitindo solicitar renovação (com justificativa obrigatória) ou confirmar devolução.
+- [x] Submissão válida com PDF/JPG/PNG cria solicitação `EM_ANALISE`, gera protocolo `EQP-AAAAMMDD-XXXX` e registra evento inicial na linha do tempo.
+- [x] Arquivo com extensão `.exe`/`.sh` ou arquivo `.pdf` falso (com conteúdo de script/texto sem cabeçalho `%PDF-`) é rejeitado com `AnexoInvalido` (`RS008`).
+- [x] Laudo acima de 10 MB ou comprovante acima de 5 MB é rejeitado com `AnexoInvalido`.
+- [x] Download de laudo médico (`EquipamentoAnexoDownloadView`) funciona para o titular PCD, seu cuidador vinculado e `is_staff`, mas retorna 404 para outros usuários autenticados e redireciona visitantes (`RS001`).
+- [x] A evolução de status pela triagem da ADEFAL atualiza a linha do tempo consultada pelo titular e pelo cuidador.
+- [x] Empréstimos a 7 dias e a 2 dias do vencimento geram alertas de devolução, permitindo solicitar renovação (com justificativa obrigatória) ou confirmar devolução.
 

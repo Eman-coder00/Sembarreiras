@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Perfil e Segurança · SemBarreiras{% endblock %}
+{% block botao_voltar %}{% endblock %}
+{% block titulo_tela %}Perfil e Acessibilidade{% endblock %}
+{% block nav_perfil %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-destaque">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <strong>{{ user.nome_completo }}</strong>
+    <span class="selo">{{ user.get_papel_display }}</span>
+  </div>
+  <p>CPF: {{ user.cpf }} · E-mail: {{ user.email }} · Tel: {{ user.telefone }}</p>
+
+  {% if perfil %}
+    <p>Deficiência: {{ perfil.get_tipo_deficiencia_display }} · Toque: {{ perfil.get_tamanho_toque_display }}</p>
+    <div style="display:grid;gap:0.6rem;margin-top:0.75rem;">
+      <a href="{% url 'contas:perfil' %}" class="botao botao-secundario">Editar Dados e Endereço</a>
+      <a href="{% url 'contas:acessibilidade' %}" class="botao">Personalizar Acessibilidade Motora</a>
+    </div>
+  {% endif %}
+</section>
+
+<section class="cartao">
+  <h2 class="titulo-secao">Vínculos de Cuidador / Tutor Legal</h2>
+  <p><a href="{% url 'contas:vinculos' %}" class="botao botao-secundario">Gerenciar Vínculos e Códigos OTP</a></p>
+</section>
+
+<section class="cartao">
+  <h2 class="titulo-secao">Histórico Recente de Segurança e Acessos</h2>
+  {% for item in logs %}
+    <p style="font-size:0.85rem;margin:0.25rem 0;">
+      <strong>{{ item.evento }}</strong> — {{ item.detalhes }} ({{ item.criado_em|date:"d/m/Y H:i" }})
+    </p>
+  {% empty %}
+    <p>Nenhum registro de auditoria.</p>
+  {% endfor %}
+</section>
+
+<section class="cartao cartao-perigo">
+  <h2 class="titulo-secao">Privacidade e Inativação da Conta (LGPD)</h2>
+  <form method="post" action="{% url 'contas:inativar' %}">
+    {% csrf_token %}
+    {{ form_inativar.senha_atual.label_tag }}
+    {{ form_inativar.senha_atual }}
+    <button type="submit" class="botao botao-perigo">Inativar Conta e Anonimizar Dados Pessoais</button>
+  </form>
+</section>
+{% endblock %}

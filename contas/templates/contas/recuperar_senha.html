@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Recuperação de Senha · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}RF005{% endblock %}
+{% block titulo_tela %}Recuperação e Redefinição de Senha{% endblock %}
+{% block nav_perfil %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao">
+  <h2 class="titulo-secao">Etapa 1 de 2 · Solicitar Código Temporário</h2>
+  <form method="post" action="{% url 'contas:recuperar_senha' %}" novalidate>
+    {% csrf_token %}
+    <div>
+      {{ form.identificador.label_tag }}
+      {{ form.identificador }}
+      {{ form.identificador.errors }}
+    </div>
+    <button type="submit" class="botao">Enviar Código de 6 Dígitos</button>
+  </form>
+</section>
+{% endblock %}
+

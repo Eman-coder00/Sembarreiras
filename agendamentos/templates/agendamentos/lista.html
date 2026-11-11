@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Meus Agendamentos ADEFAL · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 15 · RF018{% endblock %}
+{% block titulo_tela %}Saúde ADEFAL & Transporte{% endblock %}
+{% block nav_saude %}ativo{% endblock %}
+
+{% block content %}
+<div style="display:grid;gap:0.65rem;margin-bottom:1rem;">
+  <a href="{% url 'agendamentos:criar' %}" class="botao">➕ Novo Agendamento na ADEFAL</a>
+  {% if user.is_staff %}
+    <a href="{% url 'agendamentos:validar_qr' %}" class="botao botao-secundario">🔍 Portaria ADEFAL: Validar QR Code</a>
+  {% endif %}
+</div>
+
+<section class="cartao">
+  <h2 class="titulo-secao">Filtrar Meus Agendamentos</h2>
+  <form method="get">
+    {% for field in form %}
+      {% if field.name != "titular_cpf" or user.papel == "CUIDADOR" %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+      {% endif %}
+    {% endfor %}
+    <button type="submit" class="botao botao-secundario">Filtrar</button>
+  </form>
+</section>
+
+<section class="cartao cartao-destaque">
+  <h2 class="titulo-secao">Consultas e Sessões de Reabilitação</h2>
+  {% for c in consultas %}
+    <div class="cartao" style="margin-bottom:0.85rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+        <strong>{{ c.protocolo }}</strong>
+        <span class="selo">{{ c.get_status_display }}</span>
+      </div>
+      <p style="font-size:0.9rem;margin:0.45rem 0;">
+        <strong>Especialidade:</strong> {{ c.vaga.get_especialidade_display }}<br>
+        <strong>Unidade:</strong> {{ c.vaga.get_unidade_display }}<br>
+        <strong>Profissional:</strong> {{ c.vaga.profissional }}<br>
+        <strong>Data/Horário:</strong> {{ c.vaga.data|date:"d/m/Y" }} às {{ c.vaga.horario|time:"H:i" }}
+      </p>
+      {% if c.transporte %}
+        <p style="font-size:0.85rem;color:var(--destaque);margin:0.35rem 0;">
+          🚐 <strong>Transporte Hospitalar:</strong> {{ c.transporte.get_status_display }}
+          (Apanhe às {{ c.transporte.horario_apanhe_previsto|time:"H:i" }} — {{ c.transporte.frota.veiculo_identificacao }})
+        </p>
+      {% endif %}
+      <div style="display:grid;gap:0.5rem;margin-top:0.65rem;">
+        <a href="{% url 'agendamentos:detalhe' c.protocolo %}" class="botao botao-secundario">Gerenciar Agendamento / Transporte</a>
+        <a href="{% url 'agendamentos:comprovante' c.protocolo %}" class="botao-link" style="text-align:center;">🎫 Ver Comprovante Digital & QR Code</a>
+      </div>
+    </div>
+  {% empty %}
+    <p>Nenhum agendamento encontrado.</p>
+  {% endfor %}
+</section>
+{% endblock %}

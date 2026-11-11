@@ -1,6 +1,6 @@
 # Spec 0001: Fundação do projeto
 
-- **Status:** Proposto
+- **Status:** Implementado
 - **Requisitos:** RNF-01, RNF-02, RNF-03 e RNF-06 do [PRD 0001](../prd/0001-sem-barreiras.md)
 - **Decisões:** [ADR 0001](../adr/0001-mvt-com-camada-de-service.md), [ADR 0002](../adr/0002-modelo-de-usuario-e-perfis-de-acesso.md), [ADR 0003](../adr/0003-postgresql-como-banco-de-dados.md)
 
@@ -115,7 +115,7 @@ urlpatterns = [
 
 ## Testes
 
-- [ ] `python manage.py check` não reporta problemas.
-- [ ] `python manage.py migrate` executa usando `contas.Usuario` no PostgreSQL.
-- [ ] O teste automatizado de arquitetura passa para todos os apps.
+- [x] `python manage.py check` não reporta problemas.
+- [x] `python manage.py migrate` executa usando `contas.Usuario` no PostgreSQL.
+- [x] O teste automatizado de arquitetura passa para todos os apps.
 

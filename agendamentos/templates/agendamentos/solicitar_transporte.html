@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Solicitar Transporte Hospitalar · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 14 · RF016{% endblock %}
+{% block titulo_tela %}Transporte Hospitalar{% endblock %}
+{% block nav_saude %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-destaque">
+  <h2 class="titulo-secao">Consulta Vinculada: {{ consulta.protocolo }}</h2>
+  <p style="font-size:0.88rem;margin:0;">
+    <strong>Especialidade:</strong> {{ consulta.vaga.get_especialidade_display }}<br>
+    <strong>Data/Horário da Consulta:</strong> {{ consulta.vaga.data|date:"d/m/Y" }} às {{ consulta.vaga.horario|time:"H:i" }}<br>
+    <strong>Destino:</strong> {{ consulta.vaga.get_unidade_display }}
+  </p>
+</section>
+
+<section class="cartao">
+  <h2 class="titulo-secao">Reserva de Vaga em Van Adaptada (Mín. 48h)</h2>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <label for="{{ form.endereco_embarque.id_for_label }}">{{ form.endereco_embarque.label }}</label>
+    {{ form.endereco_embarque }}
+    {{ form.endereco_embarque.errors }}
+
+    <label for="{{ form.equipamento_transporte.id_for_label }}">{{ form.equipamento_transporte.label }}</label>
+    {{ form.equipamento_transporte }}
+    {{ form.equipamento_transporte.errors }}
+
+    <p style="display:flex;align-items:center;gap:0.5rem;">
+      {{ form.precisa_acompanhante }}
+      <label for="{{ form.precisa_acompanhante.id_for_label }}" style="margin:0;">
+        {{ form.precisa_acompanhante.label }}
+      </label>
+    </p>
+    <button type="submit" class="botao">Confirmar Solicitação de Transporte</button>
+  </form>
+</section>
+{% endblock %}
+

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Comprovante Digital {{ consulta.protocolo }} · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 16 · RF017 & RS006{% endblock %}
+{% block titulo_tela %}Comprovante & QR Code{% endblock %}
+{% block nav_saude %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-destaque" style="text-align:center;">
+  <span class="selo">{{ consulta.get_status_display }}</span>
+  <h2 style="margin:0.5rem 0 0.25rem;">{{ consulta.protocolo }}</h2>
+  <p style="font-size:0.88rem;color:var(--suave);margin:0 0 1rem;">
+    Apresente este comprovante na recepção da ADEFAL e ao motorista da van adaptada.
+  </p>
+
+  <div style="background:#ffffff;color:#0b111e;padding:1.15rem;border-radius:14px;display:inline-block;margin-bottom:1rem;max-width:260px;">
+    <div style="font-family:monospace;font-weight:900;font-size:0.82rem;letter-spacing:0.06em;border:3px solid #0b111e;padding:0.85rem;">
+      [ QR CODE ASSINADO HMAC ]<br>
+      {{ consulta.protocolo }}<br>
+      <span style="font-size:0.68rem;word-break:break-all;">{{ consulta.assinatura_qr }}</span>
+    </div>
+  </div>
+
+  <div style="text-align:left;background:var(--fundo);padding:0.9rem;border-radius:12px;font-size:0.88rem;">
+    <p style="margin:0.25rem 0;"><strong>Paciente PCD:</strong> {{ consulta.paciente_pcd.nome_completo }} ({{ consulta.paciente_pcd.cpf }})</p>
+    <p style="margin:0.25rem 0;"><strong>Especialidade:</strong> {{ consulta.vaga.get_especialidade_display }}</p>
+    <p style="margin:0.25rem 0;"><strong>Unidade:</strong> {{ consulta.vaga.get_unidade_display }}</p>
+    <p style="margin:0.25rem 0;"><strong>Profissional:</strong> {{ consulta.vaga.profissional }}</p>
+    <p style="margin:0.25rem 0;"><strong>Data e Horário:</strong> {{ consulta.vaga.data|date:"d/m/Y" }} às {{ consulta.vaga.horario|time:"H:i" }}</p>
+    {% if transporte and transporte.status != 5 %}
+      <hr style="border-color:var(--borda);">
+      <p style="margin:0.25rem 0;color:var(--destaque);"><strong>Transporte Adaptado:</strong> {{ transporte.frota.veiculo_identificacao }}</p>
+      <p style="margin:0.25rem 0;"><strong>Apanhe Previsto:</strong> {{ transporte.horario_apanhe_previsto|time:"H:i" }} ({{ transporte.endereco_embarque }})</p>
+    {% endif %}
+    <hr style="border-color:var(--borda);">
+    <p style="margin:0.25rem 0;font-size:0.75rem;color:var(--suave);word-break:break-all;">
+      <strong>Assinatura HMAC-SHA256:</strong> {{ consulta.assinatura_qr }}
+    </p>
+  </div>
+</section>
+
+<a href="{% url 'agendamentos:detalhe' consulta.protocolo %}" class="botao botao-secundario">Voltar aos Detalhes da Consulta</a>
+{% endblock %}
+

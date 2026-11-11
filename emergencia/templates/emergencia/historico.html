@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Histórico de Emergências · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 09 · RF011{% endblock %}
+{% block titulo_tela %}Histórico de Acionamentos{% endblock %}
+{% block nav_home %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao">
+  <h2 class="titulo-secao">Filtrar Ocorrências Auditáveis</h2>
+  <form method="get">
+    {% for field in form %}
+      {% if field.name != "titular_cpf" or user.papel == "CUIDADOR" %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+      {% endif %}
+    {% endfor %}
+    <button type="submit" class="botao botao-secundario">Filtrar Histórico</button>
+  </form>
+</section>
+
+<section class="cartao cartao-destaque">
+  <h2 class="titulo-secao">Registros de Acionamento (Ordem Cronológica Inversa)</h2>
+  {% for item in ocorrencias %}
+    <div class="cartao" style="margin-bottom:0.85rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+        <strong>{{ item.codigo }}</strong>
+        <span class="selo">{{ item.get_status_display }}</span>
+      </div>
+      <p style="font-size:0.88rem;margin:0.4rem 0;">
+        <strong>Data/Hora:</strong> {{ item.criado_em|date:"d/m/Y H:i:s" }}<br>
+        <strong>Localização:</strong> {{ item.endereco_aproximado|default:"Coordenadas não informadas" }}<br>
+        {% if item.latitude and item.longitude %}
+          <strong>Coordenadas GPS:</strong> {{ item.latitude }}, {{ item.longitude }}
+        {% endif %}
+      </p>
+      {% if item.contatos_notificados %}
+        <p style="font-size:0.85rem;color:var(--suave);margin:0.35rem 0;">
+          <strong>Contatos acionados:</strong> {{ item.contatos_notificados }}
+        </p>
+      {% endif %}
+      {% if item.mensagem_enviada %}
+        <p style="font-size:0.82rem;background:var(--fundo);padding:0.55rem;border-radius:8px;margin:0.35rem 0 0;">
+          {{ item.mensagem_enviada }}
+        </p>
+      {% endif %}
+    </div>
+  {% empty %}
+    <p>Nenhum acionamento registrado para os filtros selecionados.</p>
+  {% endfor %}
+</section>
+{% endblock %}
+

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Validação de Comprovante QR · Portaria ADEFAL{% endblock %}
+{% block etiqueta_rf %}PORTARIA ADEFAL · RS006{% endblock %}
+{% block titulo_tela %}Validar QR Code HMAC{% endblock %}
+{% block nav_saude %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao">
+  <h2 class="titulo-secao">Conferência Criptográfica de Comprovante (Portaria / Frota)</h2>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {{ field.errors }}
+    {% endfor %}
+    <button type="submit" class="botao">Validar Assinatura HMAC-SHA256</button>
+  </form>
+</section>
+
+{% if consulta_validada %}
+<section class="cartao cartao-destaque">
+  <h2 class="titulo-secao">✔ Comprovante Autêntico Verificado</h2>
+  <p style="font-size:0.9rem;margin:0.35rem 0;">
+    <strong>Protocolo:</strong> {{ consulta_validada.protocolo }}<br>
+    <strong>Paciente:</strong> {{ consulta_validada.paciente_pcd.nome_completo }} ({{ consulta_validada.paciente_pcd.cpf }})<br>
+    <strong>Atendimento:</strong> {{ consulta_validada.vaga.get_especialidade_display }} — {{ consulta_validada.vaga.data|date:"d/m/Y" }} às {{ consulta_validada.vaga.horario|time:"H:i" }}
+  </p>
+</section>
+{% endif %}
+{% endblock %}
+

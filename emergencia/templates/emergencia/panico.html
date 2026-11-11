@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Botão de Pânico & Ações Rápidas · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 07 · RF007{% endblock %}
+{% block titulo_tela %}Emergência & Mobilidade{% endblock %}
+{% block nav_home %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-destaque">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <strong style="display:block;">Olá, {{ user.nome_completo }}</strong>
+      <span style="font-size:0.85rem;color:var(--suave);">GPS Maceió/AL ativo · Contatos sincronizados offline</span>
+    </div>
+    <span class="selo">{{ contatos|length }} contato(s)</span>
+  </div>
+
+  <form method="post" action="{% url 'emergencia:panico' %}" id="form-acionar-panico">
+    {% csrf_token %}
+    <input type="hidden" name="latitude" id="id_latitude" value="-9.64985">
+    <input type="hidden" name="longitude" id="id_longitude" value="-35.70895">
+    <div class="container-panico">
+      <button type="submit" class="botao-panico-circular" aria-label="Acionar Botão de Pânico de Emergência">
+        <span>SOS</span>
+        <span class="subtexto-panico">BOTÃO DE PÂNICO</span>
+        <span style="font-size:0.72rem;font-weight:600;opacity:0.9;">Toque para acionar</span>
+      </button>
+    </div>
+  </form>
+
+  <p style="text-align:center;font-size:0.85rem;color:var(--suave);margin:0;">
+    Ao tocar em SOS, você terá uma janela de segurança de <strong>5 segundos</strong> para cancelar antes do envio aos seus contatos.
+  </p>
+</section>
+
+<section class="cartao">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+    <h2 class="titulo-secao" style="margin:0;">Contatos Prontos para Acionamento</h2>
+    <a href="{% url 'emergencia:contatos' %}" class="botao-link">Gerenciar</a>
+  </div>
+  {% for c in contatos %}
+    <p style="margin:0.35rem 0;font-size:0.9rem;">
+      <span class="selo">{{ c.prioridade }}º</span>
+      <strong>{{ c.nome }}</strong> — {{ c.telefone }} ({{ c.get_parentesco_display }})
+    </p>
+  {% empty %}
+    <p style="color:var(--alerta);font-weight:700;margin:0.35rem 0;">
+      Nenhum contato ativo cadastrado. Cadastre pelo menos 1 contato prioritário!
+    </p>
+  {% endfor %}
+</section>
+
+<section class="cartao">
+  <h2 class="titulo-secao">Ações Rápidas SemBarreiras</h2>
+  <div style="display:grid;gap:0.65rem;">
+    <a href="{% url 'transporte:consulta' %}" class="botao botao-secundario">🚌 Consultar Ônibus Adaptados (Tempo Real)</a>
+    <a href="{% url 'agendamentos:lista' %}" class="botao botao-secundario">🏥 Agendamentos ADEFAL & Transporte Hospitalar</a>
+    <a href="{% url 'equipamentos:lista' %}" class="botao botao-secundario">♿ Solicitar Equipamento de Apoio / Laudos</a>
+    <a href="{% url 'emergencia:historico' %}" class="botao botao-secundario">📋 Histórico Auditável de Emergências</a>
+  </div>
+</section>
+
+<script>
+  (function () {
+    try {
+      var contatosOffline = {{ contatos_json|safe }};
+      localStorage.setItem("sembarreiras_contatos_emergencia", JSON.stringify(contatosOffline));
+    } catch (e) {}
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        var latInput = document.getElementById("id_latitude");
+        var lngInput = document.getElementById("id_longitude");
+        if (latInput && lngInput) {
+          latInput.value = pos.coords.latitude.toFixed(6);
+          lngInput.value = pos.coords.longitude.toFixed(6);
+        }
+      });
+    }
+  })();
+</script>
+{% endblock %}

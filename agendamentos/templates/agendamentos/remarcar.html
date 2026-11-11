@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Remarcar {{ consulta.protocolo }} · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 15 · RF018{% endblock %}
+{% block titulo_tela %}Remarcar Consulta{% endblock %}
+{% block nav_saude %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao">
+  <h2 class="titulo-secao">Consulta Atual: {{ consulta.protocolo }}</h2>
+  <p style="font-size:0.88rem;">
+    {{ consulta.vaga.get_especialidade_display }} — {{ consulta.vaga.data|date:"d/m/Y" }} às {{ consulta.vaga.horario|time:"H:i" }}
+  </p>
+
+  <form method="post">
+    {% csrf_token %}
+    <label for="id_nova_vaga_id">Selecione o Novo Horário Disponível</label>
+    <select name="nova_vaga_id" id="id_nova_vaga_id" required>
+      {% for v in vagas %}
+        <option value="{{ v.id }}">
+          {{ v.data|date:"d/m/Y" }} às {{ v.horario|time:"H:i" }} — {{ v.profissional }} ({{ v.get_unidade_display }})
+        </option>
+      {% endfor %}
+    </select>
+    <label for="{{ form.justificativa.id_for_label }}">{{ form.justificativa.label }}</label>
+    {{ form.justificativa }}
+    <button type="submit" class="botao">Confirmar Remarcação</button>
+  </form>
+</section>
+{% endblock %}
+

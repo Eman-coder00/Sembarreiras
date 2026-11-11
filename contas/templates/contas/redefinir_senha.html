@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Redefinição Segura de Senha · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}RF005{% endblock %}
+{% block titulo_tela %}Redefinição Segura de Senha{% endblock %}
+{% block nav_perfil %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-destaque">
+  <h2 class="titulo-secao">Etapa 2 de 2 · Validação Criptográfica (Expira em 15 min)</h2>
+  <form method="post" action="{% url 'contas:redefinir_senha' %}" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div>
+      {{ form.identificador.label_tag }}
+      {{ form.identificador }}
+      {{ form.identificador.errors }}
+    </div>
+    <div>
+      {{ form.codigo.label_tag }}
+      {{ form.codigo }}
+      {{ form.codigo.errors }}
+    </div>
+    <div>
+      {{ form.nova_senha.label_tag }}
+      {{ form.nova_senha }}
+      {{ form.nova_senha.errors }}
+    </div>
+    <div>
+      {{ form.confirmar_nova_senha.label_tag }}
+      {{ form.confirmar_nova_senha }}
+      {{ form.confirmar_nova_senha.errors }}
+    </div>
+    <button type="submit" class="botao">Salvar Nova Senha e Conectar</button>
+  </form>
+</section>
+{% endblock %}
+

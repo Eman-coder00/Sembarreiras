@@ -1,6 +1,6 @@
 # Spec 0003: Emergência e botão de pânico
 
-- **Status:** Proposto
+- **Status:** Implementado
 - **Requisitos:** RF-07 a RF-11, RNF-02 e RNF-05 do [PRD 0001](../prd/0001-sem-barreiras.md)
 - **Decisões:** [ADR 0001](../adr/0001-mvt-com-camada-de-service.md), [ADR 0004](../adr/0004-simulacao-local-de-integracoes-externas.md)
 - **Depende de:** [Spec 0002](0002-contas-vinculo-e-acessibilidade.md)
@@ -92,11 +92,11 @@ No `Meta`:
 
 ## Testes
 
-- [ ] Usuário PCD cadastra até 3 contatos prioritários; tentar cadastrar o 4º contato ativo levanta `LimiteContatosExcedido`.
-- [ ] Tentar excluir o único contato de emergência ativo é bloqueado com `MinimoContatoAtivoObrigatorio`.
-- [ ] Acionar pânico sem contatos ativos é rejeitado com mensagem orientando o cadastro de contato.
-- [ ] Cancelar o alerta durante a contagem regressiva grava `CANCELADO`, exibe `"Alerta cancelado com sucesso"` e não envia mensagens externas.
-- [ ] Confirmar o disparo grava coordenadas, lista de contatos notificados e texto padrão com link de localização.
-- [ ] Em caso de falha no canal de dados (`falha_dados=True`), o service realiza fallback automático para SMS (`FALLBACK_SMS`).
-- [ ] Cuidador com vínculo `APROVADO` visualiza o histórico de ocorrências do titular, mas cuidador sem vínculo ativo ou outro usuário recebe 404/403.
+- [x] Usuário PCD cadastra até 3 contatos prioritários; tentar cadastrar o 4º contato ativo levanta `LimiteContatosExcedido`.
+- [x] Tentar excluir o único contato de emergência ativo é bloqueado com `MinimoContatoAtivoObrigatorio`.
+- [x] Acionar pânico sem contatos ativos é rejeitado com mensagem orientando o cadastro de contato.
+- [x] Cancelar o alerta durante a contagem regressiva grava `CANCELADO`, exibe `"Alerta cancelado com sucesso"` e não envia mensagens externas.
+- [x] Confirmar o disparo grava coordenadas, lista de contatos notificados e texto padrão com link de localização.
+- [x] Em caso de falha no canal de dados (`falha_dados=True`), o service realiza fallback automático para SMS (`FALLBACK_SMS`).
+- [x] Cuidador com vínculo `APROVADO` visualiza o histórico de ocorrências do titular, mas cuidador sem vínculo ativo ou outro usuário recebe 404/403.
 

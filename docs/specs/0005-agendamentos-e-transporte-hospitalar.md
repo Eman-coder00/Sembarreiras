@@ -1,6 +1,6 @@
 # Spec 0005: Agendamentos na ADEFAL e transporte hospitalar adaptado
 
-- **Status:** Proposto
+- **Status:** Implementado
 - **Requisitos:** RF-15 a RF-18, RNF-03 e RNF-05 do [PRD 0001](../prd/0001-sem-barreiras.md)
 - **Decisões:** [ADR 0001](../adr/0001-mvt-com-camada-de-service.md), [ADR 0003](../adr/0003-postgresql-como-banco-de-dados.md), [ADR 0004](../adr/0004-simulacao-local-de-integracoes-externas.md)
 - **Depende de:** [Spec 0002](0002-contas-vinculo-e-acessibilidade.md)
@@ -108,11 +108,11 @@ No `Meta`: `UniqueConstraint` em `(unidade, profissional, data, horario)`.
 
 ## Testes
 
-- [ ] Agendamento em vaga disponível gera protocolo `CNS-AAAAMMDD-XXXX`, marca a vaga como indisponível e impede duplo agendamento na mesma vaga.
-- [ ] Cancelar ou remarcar consulta com mais de 24h de antecedência libera a vaga e cancela automaticamente o transporte hospitalar vinculado.
-- [ ] Tentar cancelar ou remarcar consulta faltando menos de 24h é bloqueado com `PrazoMinimo24hConsulta`.
-- [ ] Solicitar transporte hospitalar com pelo menos 48h de antecedência e vaga na van confirma a reserva e reduz o saldo disponível.
-- [ ] Solicitar transporte faltando menos de 48h (`PrazoMinimo48hTransporte`) ou sem vaga na frota (`SemVagaFrotaAdaptada`) é rejeitado.
-- [ ] Comprovante digital exibe QR Code assinado, e `PortariaValidarQRView` aceita assinatura autêntica e rejeita assinatura adulterada (`ComprovanteInvalido`).
-- [ ] Cuidador com vínculo `APROVADO` agenda e visualiza consultas do titular; usuário sem vínculo recebe 404/403.
+- [x] Agendamento em vaga disponível gera protocolo `CNS-AAAAMMDD-XXXX`, marca a vaga como indisponível e impede duplo agendamento na mesma vaga.
+- [x] Cancelar ou remarcar consulta com mais de 24h de antecedência libera a vaga e cancela automaticamente o transporte hospitalar vinculado.
+- [x] Tentar cancelar ou remarcar consulta faltando menos de 24h é bloqueado com `PrazoMinimo24hConsulta`.
+- [x] Solicitar transporte hospitalar com pelo menos 48h de antecedência e vaga na van confirma a reserva e reduz o saldo disponível.
+- [x] Solicitar transporte faltando menos de 48h (`PrazoMinimo48hTransporte`) ou sem vaga na frota (`SemVagaFrotaAdaptada`) é rejeitado.
+- [x] Comprovante digital exibe QR Code assinado, e `PortariaValidarQRView` aceita assinatura autêntica e rejeita assinatura adulterada (`ComprovanteInvalido`).
+- [x] Cuidador com vínculo `APROVADO` agenda e visualiza consultas do titular; usuário sem vínculo recebe 404/403.
 

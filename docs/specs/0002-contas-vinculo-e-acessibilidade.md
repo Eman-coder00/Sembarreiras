@@ -1,6 +1,6 @@
 # Spec 0002: Contas, vínculo de cuidador e acessibilidade motora
 
-- **Status:** Proposto
+- **Status:** Implementado
 - **Requisitos:** RF-01 a RF-06, RNF-02, RNF-03 e RNF-04 do [PRD 0001](../prd/0001-sem-barreiras.md)
 - **Decisões:** [ADR 0001](../adr/0001-mvt-com-camada-de-service.md), [ADR 0002](../adr/0002-modelo-de-usuario-e-perfis-de-acesso.md), [ADR 0003](../adr/0003-postgresql-como-banco-de-dados.md), [ADR 0004](../adr/0004-simulacao-local-de-integracoes-externas.md)
 - **Depende de:** [Spec 0001](0001-fundacao.md)
@@ -148,13 +148,13 @@ Base local de CEPs para consulta rápida sem internet ([ADR 0004](../adr/0004-si
 
 ## Testes
 
-- [ ] Cadastro PCD com dados válidos cria usuário e perfil de acessibilidade; CPF inválido, CPF duplicado ou e-mail duplicado são rejeitados com as mensagens previstas.
-- [ ] Consulta de CEP existente preenche logradouro/bairro/município/UF; CEP inexistente retorna mensagem "Endereço não localizado" e permite preenchimento manual.
-- [ ] Login aceita CPF ou e-mail com o perfil correto e rejeita quando o perfil selecionado diverge do cadastro.
-- [ ] 5 tentativas consecutivas de senha incorreta bloqueiam a conta por 15 minutos (`ContaTemporariamenteBloqueada`).
-- [ ] Vínculo de cuidador nasce `PENDENTE`, exige o código OTP correto para passar a `APROVADO` e perde acesso imediatamente quando `REVOGADO`.
-- [ ] Alteração de acessibilidade motora atualiza as classes de área de toque e alto contraste renderizadas no `base.html`.
-- [ ] Alteração de telefone ou endereço exige senha atual e gera registro em `LogAuditoriaConta`; o CPF nunca é alterado.
-- [ ] Recuperação de senha com token válido de 6 dígitos dentro de 15 minutos redefine a senha e invalida token expirado ou já usado.
-- [ ] Inativação de conta altera status para `INATIVO`, mascara dados pessoais identificáveis e impede novo login.
+- [x] Cadastro PCD com dados válidos cria usuário e perfil de acessibilidade; CPF inválido, CPF duplicado ou e-mail duplicado são rejeitados com as mensagens previstas.
+- [x] Consulta de CEP existente preenche logradouro/bairro/município/UF; CEP inexistente retorna mensagem "Endereço não localizado" e permite preenchimento manual.
+- [x] Login aceita CPF ou e-mail com o perfil correto e rejeita quando o perfil selecionado diverge do cadastro.
+- [x] 5 tentativas consecutivas de senha incorreta bloqueiam a conta por 15 minutos (`ContaTemporariamenteBloqueada`).
+- [x] Vínculo de cuidador nasce `PENDENTE`, exige o código OTP correto para passar a `APROVADO` e perde acesso imediatamente quando `REVOGADO`.
+- [x] Alteração de acessibilidade motora atualiza as classes de área de toque e alto contraste renderizadas no `base.html`.
+- [x] Alteração de telefone ou endereço exige senha atual e gera registro em `LogAuditoriaConta`; o CPF nunca é alterado.
+- [x] Recuperação de senha com token válido de 6 dígitos dentro de 15 minutos redefine a senha e invalida token expirado ou já usado.
+- [x] Inativação de conta altera status para `INATIVO`, mascara dados pessoais identificáveis e impede novo login.
 

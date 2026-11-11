@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Editar Cadastro PCD · SemBarreiras{% endblock %}
+{% block titulo_tela %}Editar Dados de Contato e Endereço{% endblock %}
+{% block nav_perfil %}ativo{% endblock %}
+
+{% block content %}
+<form method="post" action="{% url 'contas:perfil' %}" novalidate>
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+
+  <section class="cartao">
+    <h2 class="titulo-secao">Dados Pessoais (CPF Imutável)</h2>
+    <div>
+      <label>CPF (Imutável)</label>
+      <input type="text" value="{{ user.cpf }}" readonly disabled>
+    </div>
+    <div>
+      {{ form.nome_completo.label_tag }}
+      {{ form.nome_completo }}
+      {{ form.nome_completo.errors }}
+    </div>
+    <div>
+      {{ form.telefone.label_tag }}
+      {{ form.telefone }}
+      {{ form.telefone.errors }}
+    </div>
+    <div>
+      {{ form.equipamentos_apoio.label_tag }}
+      {{ form.equipamentos_apoio }}
+      {{ form.equipamentos_apoio.errors }}
+    </div>
+  </section>
+
+  <section class="cartao">
+    <h2 class="titulo-secao">Endereço Residencial e de Embarque</h2>
+    <div>
+      {{ form.cep.label_tag }}
+      {{ form.cep }}
+      {{ form.cep.errors }}
+    </div>
+    <div>
+      {{ form.logradouro.label_tag }}
+      {{ form.logradouro }}
+      {{ form.logradouro.errors }}
+    </div>
+    <div>
+      {{ form.numero.label_tag }}
+      {{ form.numero }}
+      {{ form.numero.errors }}
+    </div>
+    <div>
+      {{ form.complemento.label_tag }}
+      {{ form.complemento }}
+      {{ form.complemento.errors }}
+    </div>
+    <div>
+      {{ form.bairro.label_tag }}
+      {{ form.bairro }}
+      {{ form.bairro.errors }}
+    </div>
+    <div>
+      {{ form.municipio.label_tag }}
+      {{ form.municipio }}
+      {{ form.municipio.errors }}
+    </div>
+    <div>
+      {{ form.uf.label_tag }}
+      {{ form.uf }}
+      {{ form.uf.errors }}
+    </div>
+  </section>
+
+  <section class="cartao cartao-alerta">
+    <h2 class="titulo-secao">Confirmação de Segurança</h2>
+    <div>
+      {{ form.senha_atual.label_tag }}
+      {{ form.senha_atual }}
+      {{ form.senha_atual.errors }}
+    </div>
+  </section>
+
+  <button type="submit" class="botao">Salvar Alterações</button>
+</form>
+{% endblock %}
+

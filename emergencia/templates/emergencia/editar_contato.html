@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Editar Contato · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 06 · RF008{% endblock %}
+{% block titulo_tela %}Editar Contato Prioritário{% endblock %}
+{% block nav_home %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao">
+  <h2 class="titulo-secao">Atualizar {{ contato.nome }}</h2>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {{ field.errors }}
+    {% endfor %}
+    <button type="submit" class="botao">Salvar Alterações</button>
+  </form>
+  <p style="text-align:center;margin-top:0.85rem;">
+    <a href="{% url 'emergencia:contatos' %}">Cancelar e voltar aos contatos</a>
+  </p>
+</section>
+{% endblock %}
+

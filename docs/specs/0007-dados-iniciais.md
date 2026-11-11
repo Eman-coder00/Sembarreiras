@@ -1,6 +1,6 @@
 # Spec 0007: Dados iniciais de demonstração
 
-- **Status:** Proposto
+- **Status:** Implementado
 - **Decisões:** [ADR 0004](../adr/0004-simulacao-local-de-integracoes-externas.md)
 - **Depende de:** [Spec 0002](0002-contas-vinculo-e-acessibilidade.md), [Spec 0004](0004-transporte-urbano-acessivel.md), [Spec 0005](0005-agendamentos-e-transporte-hospitalar.md)
 
@@ -19,5 +19,5 @@ python manage.py carregar_dados_iniciais
 
 ## Testes
 
-- [ ] Executar `carregar_dados_iniciais` duas vezes seguidas popula CEPs, linhas de ônibus, vagas da ADEFAL e frota adaptada sem duplicar registros.
+- [x] Executar `carregar_dados_iniciais` duas vezes seguidas popula CEPs, linhas de ônibus, vagas da ADEFAL e frota adaptada sem duplicar registros.
 

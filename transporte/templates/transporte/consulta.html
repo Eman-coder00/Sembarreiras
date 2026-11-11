@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Transporte Urbano Acessível · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELAS 10 & 11 · RF012 / RF014{% endblock %}
+{% block titulo_tela %}Ônibus Adaptados Maceió{% endblock %}
+{% block nav_transporte %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao">
+  <h2 class="titulo-secao">Buscar Linhas com Elevador / Rampa Ativa</h2>
+  <form method="get">
+    {{ form.lat }}
+    {{ form.lon }}
+    <label for="{{ form.origem.id_for_label }}">{{ form.origem.label }}</label>
+    {{ form.origem }}
+    <label for="{{ form.linha.id_for_label }}">{{ form.linha.label }}</label>
+    {{ form.linha }}
+    <label for="{{ form.raio.id_for_label }}">{{ form.raio.label }}</label>
+    {{ form.raio }}
+    <button type="submit" class="botao">Filtrar Frota Acessível</button>
+  </form>
+</section>
+
+<section class="cartao cartao-destaque">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+    <h2 class="titulo-secao" style="margin:0;">Veículos com Acessibilidade Confirmada</h2>
+    <span class="selo">{{ resultados|length }} disponível(is)</span>
+  </div>
+  <p style="font-size:0.84rem;color:var(--suave);margin-top:0;">
+    Ônibus sem plataforma elevatória ou com falha mecânica são ocultados automaticamente.
+  </p>
+
+  {% for item in resultados %}
+    <div class="cartao" style="margin-bottom:0.85rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+        <div>
+          <span class="selo">Linha {{ item.linha.codigo }}</span>
+          <strong style="display:block;margin-top:0.35rem;">{{ item.linha.nome }}</strong>
+        </div>
+        <span class="selo" style="border-color:var(--ciano);color:var(--ciano);">
+          ETA ~{{ item.eta_minutos }} min
+        </span>
+      </div>
+      <p style="font-size:0.86rem;margin:0.45rem 0;">
+        <strong>Prefixo:</strong> {{ item.veiculo.prefixo }} ·
+        <strong>Recurso:</strong> {{ item.veiculo.get_tipo_equipamento_display }} ·
+        <strong>Vagas Cadeirante:</strong> {{ item.veiculo.vagas_cadeirante }}<br>
+        <strong>Distância ao ponto:</strong> {{ item.distancia_metros }} m<br>
+        <strong>Itinerário:</strong> {{ item.linha.itinerario }}
+      </p>
+      <p style="font-size:0.88rem;color:var(--destaque);font-weight:700;margin:0.4rem 0 0.7rem;">
+        {{ item.mensagem_eta }}
+      </p>
+      <a href="{% url 'transporte:rastrear' item.veiculo.prefixo %}{% if item.ponto_parada %}?ponto_id={{ item.ponto_parada.id }}{% endif %}" class="botao botao-secundario">
+        📍 Rastrear Ônibus em Tempo Real
+      </a>
+    </div>
+  {% empty %}
+    <p>Nenhum ônibus adaptado encontrado com elevador/rampa ativa dentro do raio filtrado.</p>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Entrar · MobiLivre SemBarreiras{% endblock %}
+{% block botao_voltar %}{% endblock %}
+{% block titulo_tela %}Acesso ao Sistema{% endblock %}
+
+{% block content %}
+<section class="cartao">
+  <h2 class="titulo-secao">MobiLivre · Acessibilidade, Mobilidade e Saúde ADEFAL</h2>
+  <form method="post" action="{% url 'contas:entrar' %}" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {{ form.non_field_errors }}
+
+    <div>
+      {{ form.perfil_selecionado.label_tag }}
+      {{ form.perfil_selecionado }}
+      {{ form.perfil_selecionado.errors }}
+    </div>
+    <div>
+      {{ form.identificador.label_tag }}
+      {{ form.identificador }}
+      {{ form.identificador.errors }}
+    </div>
+    <div>
+      {{ form.senha.label_tag }}
+      {{ form.senha }}
+      {{ form.senha.errors }}
+    </div>
+    <div>
+      <label>
+        {{ form.manter_conectado }} Manter conectado
+      </label>
+    </div>
+
+    <button type="submit" class="botao">Entrar na Conta</button>
+  </form>
+</section>
+
+<section class="cartao">
+  <p><a href="{% url 'contas:recuperar_senha' %}">Esqueceu a senha? Recuperar acesso</a></p>
+  <p>Não tem uma conta? <a href="{% url 'contas:cadastro_pcd' %}">Cadastre-se como Titular PCD</a> ou <a href="{% url 'contas:cadastro_cuidador' %}">Vincular como Cuidador</a></p>
+</section>
+{% endblock %}

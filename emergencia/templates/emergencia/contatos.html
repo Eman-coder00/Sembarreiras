@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Contatos de Emergência · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 06 · RF008{% endblock %}
+{% block titulo_tela %}Contatos Prioritários{% endblock %}
+{% block nav_home %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-destaque">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+    <h2 class="titulo-secao" style="margin:0;">Contatos Ativos (Máx. 3)</h2>
+    <span class="selo">{{ contatos|length }}/3 ativos</span>
+  </div>
+  <p style="font-size:0.88rem;color:var(--suave);margin-top:0;">
+    Acionados automaticamente por ordem de prioridade no disparo do Botão de Pânico (Push + Fallback SMS).
+  </p>
+
+  {% for c in contatos %}
+    <div class="cartao" style="margin-bottom:0.75rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+        <div>
+          <span class="selo">{{ c.prioridade }}ª Prioridade</span>
+          <strong style="display:block;margin-top:0.35rem;">{{ c.nome }}</strong>
+          <span style="font-size:0.88rem;color:var(--suave);">
+            {{ c.telefone }} · {{ c.get_parentesco_display }}
+          </span>
+        </div>
+        <div style="display:flex;gap:0.4rem;">
+          <a href="{% url 'emergencia:editar_contato' c.id %}" class="botao-link">Editar</a>
+          <form method="post" action="{% url 'emergencia:excluir_contato' c.id %}" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="botao-link" style="color:var(--perigo);border-color:var(--perigo);">Excluir</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p style="color:var(--alerta);font-weight:700;">
+      Nenhum contato ativo cadastrado. Cadastre ao menos 1 contato para habilitar o Botão de Pânico.
+    </p>
+  {% endfor %}
+</section>
+
+<section class="cartao">
+  <h2 class="titulo-secao">Adicionar Contato de Emergência</h2>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      {% if field.name != "status" %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {{ field.errors }}
+      {% endif %}
+    {% endfor %}
+    <button type="submit" class="botao">Salvar Contato Prioritário</button>
+  </form>
+</section>
+
+<div style="display:grid;gap:0.65rem;">
+  <a href="{% url 'emergencia:panico' %}" class="botao botao-secundario">Voltar ao Botão de Pânico (Home)</a>
+  <a href="{% url 'emergencia:historico' %}" class="botao botao-secundario">Ver Histórico de Emergências</a>
+</div>
+{% endblock %}
+

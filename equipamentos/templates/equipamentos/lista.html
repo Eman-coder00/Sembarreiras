@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Equipamentos de Apoio & Laudos · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELAS 19 & 20 · RF021 / RF022{% endblock %}
+{% block titulo_tela %}Equipamentos de Apoio{% endblock %}
+{% block nav_equipamentos %}ativo{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:1rem;">
+  <a href="{% url 'equipamentos:solicitar' %}" class="botao">♿ Solicitar Novo Equipamento de Apoio</a>
+</div>
+
+{% if alertas %}
+<section class="cartao cartao-alerta">
+  <h2 class="titulo-secao" style="color:var(--alerta);">⚠ Alertas de Vencimento de Empréstimo</h2>
+  {% for alerta in alertas %}
+    <div class="cartao" style="margin-bottom:0.65rem;">
+      <span class="selo" style="border-color:var(--alerta);color:var(--alerta);">{{ alerta.nivel }}</span>
+      <p style="font-size:0.9rem;margin:0.4rem 0;">{{ alerta.mensagem }}</p>
+      <a href="{% url 'equipamentos:detalhe' alerta.solicitacao.protocolo %}" class="botao botao-secundario">
+        Solicitar Renovação ou Confirmar Devolução
+      </a>
+    </div>
+  {% endfor %}
+</section>
+{% endif %}
+
+<section class="cartao cartao-destaque">
+  <h2 class="titulo-secao">Minhas Solicitações e Empréstimos ADEFAL</h2>
+  {% for s in solicitacoes %}
+    <div class="cartao" style="margin-bottom:0.85rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+        <strong>{{ s.protocolo }}</strong>
+        <span class="selo">{{ s.get_status_display }}</span>
+      </div>
+      <p style="font-size:0.9rem;margin:0.45rem 0;">
+        <strong>Equipamento:</strong> {{ s.get_tipo_equipamento_display }}<br>
+        <strong>Medidas:</strong> Quadril {{ s.largura_quadril_cm }} cm · Altura {{ s.altura_cm }} cm · Peso {{ s.peso_kg }} kg<br>
+        {% if s.data_vencimento_emprestimo %}
+          <strong>Vencimento do Empréstimo:</strong> {{ s.data_vencimento_emprestimo|date:"d/m/Y" }}
+          ({{ s.get_acao_devolucao_display }})
+        {% endif %}
+      </p>
+      <a href="{% url 'equipamentos:detalhe' s.protocolo %}" class="botao botao-secundario">
+        Ver Linha do Tempo e Documentos
+      </a>
+    </div>
+  {% empty %}
+    <p>Nenhuma solicitação de equipamento registrada.</p>
+  {% endfor %}
+</section>
+{% endblock %}

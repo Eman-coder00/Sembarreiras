@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Solicitar Equipamento e Enviar Laudo · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELAS 17 & 18 · RF019 / RF020{% endblock %}
+{% block titulo_tela %}Solicitar Equipamento{% endblock %}
+{% block nav_equipamentos %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-destaque">
+  <h2 class="titulo-secao">Dados Antropométricos e Envio de Documentos</h2>
+  <p style="font-size:0.86rem;color:var(--suave);margin-top:0;">
+    Envie o laudo médico (PDF, JPG ou PNG até 10 MB) e o comprovante de residência (até 5 MB).
+  </p>
+
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      {% if field.name != "titular_cpf" or user.papel == "CUIDADOR" %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {{ field.errors }}
+      {% endif %}
+    {% endfor %}
+    <button type="submit" class="botao">Protocolar Solicitação na ADEFAL</button>
+  </form>
+</section>
+{% endblock %}
+

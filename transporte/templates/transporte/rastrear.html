@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Rastreamento {{ veiculo.prefixo }} · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 12 · RF013 & RF014{% endblock %}
+{% block titulo_tela %}Rastreamento em Tempo Real{% endblock %}
+{% block nav_transporte %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-destaque">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+    <span class="selo">Linha {{ linha.codigo }} · {{ veiculo.prefixo }}</span>
+    <span class="selo" style="border-color:var(--sucesso);color:var(--sucesso);">♿ Acessibilidade Ativa</span>
+  </div>
+  <h2 style="margin:0.35rem 0 0.5rem;font-size:1.2rem;">{{ linha.nome }}</h2>
+  <p style="font-size:1.05rem;font-weight:800;color:var(--destaque);margin:0.5rem 0;">
+    {{ mensagem_eta }}
+  </p>
+
+  <div class="cartao" style="margin-top:0.85rem;background:var(--fundo);">
+    <p style="margin:0.3rem 0;font-size:0.9rem;">
+      <strong>Equipamento Operacional:</strong> {{ veiculo.get_tipo_equipamento_display }}<br>
+      <strong>Vagas para Cadeira de Rodas:</strong> {{ veiculo.vagas_cadeirante }} vaga(s)<br>
+      <strong>Distância até o Ponto:</strong> {{ distancia_metros }} metros<br>
+      <strong>Velocidade Média na Via:</strong> {{ veiculo.velocidade_media_kmh }} km/h<br>
+      <strong>Posição GPS do Veículo:</strong> {{ veiculo.latitude_atual }}, {{ veiculo.longitude_atual }}
+    </p>
+    {% if ponto %}
+      <p style="margin:0.5rem 0 0;font-size:0.88rem;color:var(--suave);">
+        <strong>Ponto de Embarque Selecionado:</strong> {{ ponto.nome }} — {{ ponto.logradouro }}, {{ ponto.bairro }}
+      </p>
+    {% endif %}
+  </div>
+
+  <p style="font-size:0.8rem;color:var(--suave);margin:0.65rem 0 0;">
+    🔒 Privacidade Garantida: Consulta de telemetria desacoplada da sua identidade civil.
+  </p>
+</section>
+
+<a href="{% url 'transporte:consulta' %}" class="botao botao-secundario">Voltar para Consulta de Linhas</a>
+{% endblock %}
+

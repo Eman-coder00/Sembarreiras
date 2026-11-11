@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Agendar Consulta ADEFAL · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 13 · RF015{% endblock %}
+{% block titulo_tela %}Agendar Atendimento{% endblock %}
+{% block nav_saude %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao">
+  <h2 class="titulo-secao">Filtrar Especialidade e Unidade</h2>
+  <form method="get">
+    {% for field in form_filtro %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+    {% endfor %}
+    <button type="submit" class="botao botao-secundario">Buscar Horários Disponíveis</button>
+  </form>
+</section>
+
+<section class="cartao cartao-destaque">
+  <h2 class="titulo-secao">Horários Disponíveis na Agenda ADEFAL</h2>
+  {% if vagas %}
+    <form method="post">
+      {% csrf_token %}
+      <label for="id_vaga_id">Selecione o Horário</label>
+      <select name="vaga_id" id="id_vaga_id" required>
+        {% for v in vagas %}
+          <option value="{{ v.id }}">
+            {{ v.data|date:"d/m/Y" }} às {{ v.horario|time:"H:i" }} — {{ v.get_especialidade_display }} ({{ v.profissional }} · {{ v.get_unidade_display }})
+          </option>
+        {% endfor %}
+      </select>
+
+      {% if user.papel == "CUIDADOR" %}
+        <label for="{{ form_agendar.titular_cpf.id_for_label }}">{{ form_agendar.titular_cpf.label }}</label>
+        {{ form_agendar.titular_cpf }}
+      {% endif %}
+
+      <button type="submit" class="botao">Confirmar Agendamento</button>
+    </form>
+  {% else %}
+    <p>Nenhuma vaga disponível para os filtros informados.</p>
+  {% endif %}
+</section>
+{% endblock %}
+

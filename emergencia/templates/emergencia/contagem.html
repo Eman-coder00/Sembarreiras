@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Contagem Regressiva de Emergência · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 08 · RF009 & RF010{% endblock %}
+{% block titulo_tela %}Janela de Cancelamento (5s){% endblock %}
+{% block nav_home %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-alerta" style="text-align:center;">
+  <span class="selo" style="border-color:var(--alerta);color:var(--alerta);">OCORRÊNCIA {{ ocorrencia.codigo }}</span>
+  <h2 style="font-size:2.6rem;margin:0.65rem 0;color:var(--alerta);" id="visor-segundos" aria-live="assertive">05s</h2>
+  <p style="margin:0 0 1rem;font-weight:700;">
+    Preparando envio de coordenadas GPS para seus contatos prioritários...
+  </p>
+  <p style="font-size:0.88rem;color:var(--suave);margin-bottom:1.15rem;">
+    Localização capturada: {{ ocorrencia.endereco_aproximado }}
+  </p>
+
+  <form method="post" action="{% url 'emergencia:cancelar' ocorrencia.id %}" style="margin-bottom:1rem;">
+    {% csrf_token %}
+    <button type="submit" class="botao botao-perigo" style="min-height:64px;font-size:1.15rem;">
+      ✖ CANCELAR ALERTA AGORA (TOQUE ACIDENTAL)
+    </button>
+  </form>
+</section>
+
+<section class="cartao">
+  <h2 class="titulo-secao">Confirmação de Disparo Imediato (GPS + Fallback SMS)</h2>
+  <form method="post" action="{% url 'emergencia:disparar' ocorrencia.id %}" id="form-disparo-automatico">
+    {% csrf_token %}
+    <input type="hidden" name="latitude" value="{{ ocorrencia.latitude|default:'-9.64985' }}">
+    <input type="hidden" name="longitude" value="{{ ocorrencia.longitude|default:'-35.70895' }}">
+    <p style="display:flex;align-items:center;gap:0.5rem;">
+      {{ form_disparo.falha_dados }}
+      <label for="{{ form_disparo.falha_dados.id_for_label }}" style="margin:0;">
+        {{ form_disparo.falha_dados.label }}
+      </label>
+    </p>
+    <button type="submit" class="botao">Confirmar e Enviar Alerta Imediatamente</button>
+  </form>
+</section>
+
+<script>
+  (function () {
+    var restante = 5;
+    var visor = document.getElementById("visor-segundos");
+    var timer = setInterval(function () {
+      restante -= 1;
+      if (visor && restante >= 0) {
+        visor.textContent = "0" + restante + "s";
+      }
+      if (restante <= 0) {
+        clearInterval(timer);
+      }
+    }, 1000);
+  })();
+</script>
+{% endblock %}
+

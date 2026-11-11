@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Perfil de Acessibilidade Motora · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}RF004{% endblock %}
+{% block titulo_tela %}Perfil de Acessibilidade Motora{% endblock %}
+{% block nav_perfil %}ativo{% endblock %}
+
+{% block content %}
+<form method="post" action="{% url 'contas:acessibilidade' %}" novalidate>
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+
+  <section class="cartao">
+    <h2 class="titulo-secao">Tipo de Limitação Motora Configurada</h2>
+    <div>
+      {{ form.tipo_deficiencia.label_tag }}
+      {{ form.tipo_deficiencia }}
+      {{ form.tipo_deficiencia.errors }}
+    </div>
+    <div>
+      {{ form.equipamentos_apoio.label_tag }}
+      {{ form.equipamentos_apoio }}
+      {{ form.equipamentos_apoio.errors }}
+    </div>
+  </section>
+
+  <section class="cartao">
+    <h2 class="titulo-secao">Preferências Visuais e de Toque</h2>
+    <div>
+      {{ form.tamanho_toque.label_tag }}
+      {{ form.tamanho_toque }}
+      {{ form.tamanho_toque.errors }}
+    </div>
+    <div>
+      {{ form.timeout_tela.label_tag }}
+      {{ form.timeout_tela }}
+      {{ form.timeout_tela.errors }}
+    </div>
+    <div>
+      <label>
+        {{ form.alto_contraste }} Modo de Alto Contraste (Cores puras e texto reforçado)
+      </label>
+      {{ form.alto_contraste.errors }}
+    </div>
+  </section>
+
+  <button type="submit" class="botao">Salvar Preferências de Acessibilidade</button>
+</form>
+{% endblock %}
+

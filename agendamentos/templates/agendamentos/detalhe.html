@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Detalhe {{ consulta.protocolo }} · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELA 15 · RF015 a RF018{% endblock %}
+{% block titulo_tela %}Protocolo {{ consulta.protocolo }}{% endblock %}
+{% block nav_saude %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-destaque">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+    <strong>{{ consulta.vaga.get_especialidade_display }}</strong>
+    <span class="selo">{{ consulta.get_status_display }}</span>
+  </div>
+  <p style="font-size:0.9rem;margin:0.4rem 0;">
+    <strong>Paciente PCD:</strong> {{ consulta.paciente_pcd.nome_completo }} ({{ consulta.paciente_pcd.cpf }})<br>
+    <strong>Unidade:</strong> {{ consulta.vaga.get_unidade_display }}<br>
+    <strong>Profissional:</strong> {{ consulta.vaga.profissional }}<br>
+    <strong>Data e Hora:</strong> {{ consulta.vaga.data|date:"d/m/Y" }} às {{ consulta.vaga.horario|time:"H:i" }}
+  </p>
+
+  <div style="display:grid;gap:0.6rem;margin-top:0.85rem;">
+    <a href="{% url 'agendamentos:comprovante' consulta.protocolo %}" class="botao">🎫 Abrir Comprovante Digital & QR Code</a>
+    {% if consulta.status == 1 %}
+      <a href="{% url 'agendamentos:remarcar' consulta.protocolo %}" class="botao botao-secundario">📅 Remarcar Consulta (Mín. 24h)</a>
+    {% endif %}
+  </div>
+</section>
+
+<section class="cartao">
+  <h2 class="titulo-secao">Transporte Hospitalar Adaptado (Porta a Porta)</h2>
+  {% if transporte and transporte.status != 5 %}
+    <p style="font-size:0.9rem;margin:0.4rem 0;">
+      <strong>Status da Rota:</strong> <span class="selo">{{ transporte.get_status_display }}</span><br>
+      <strong>Veículo Designado:</strong> {{ transporte.frota.veiculo_identificacao }} (Motorista: {{ transporte.frota.motorista }})<br>
+      <strong>Horário Previsto de Apanhe:</strong> {{ transporte.horario_apanhe_previsto|time:"H:i" }}<br>
+      <strong>Endereço de Embarque:</strong> {{ transporte.endereco_embarque }}<br>
+      <strong>Equipamento:</strong> {{ transporte.get_equipamento_transporte_display }} ·
+      <strong>Acompanhante:</strong> {% if transporte.precisa_acompanhante %}Sim{% else %}Não{% endif %}
+    </p>
+    <form method="post" action="{% url 'agendamentos:cancelar_transporte' consulta.protocolo %}">
+      {% csrf_token %}
+      <button type="submit" class="botao botao-perigo">Cancelar Reserva na Van Adaptada</button>
+    </form>
+  {% elif consulta.status == 1 %}
+    <p style="font-size:0.88rem;color:var(--suave);">
+      Precisa de veículo adaptado com elevador hidráulico para ir à consulta na ADEFAL? Solicite com no mínimo 48 horas de antecedência.
+    </p>
+    <a href="{% url 'agendamentos:solicitar_transporte' consulta.protocolo %}" class="botao botao-secundario">
+      🚐 Solicitar Transporte Hospitalar Adaptado
+    </a>
+  {% else %}
+    <p style="font-size:0.88rem;color:var(--suave);">Nenhum transporte ativo vinculado a esta consulta.</p>
+  {% endif %}
+</section>
+
+{% if consulta.status == 1 %}
+<section class="cartao cartao-perigo">
+  <h2 class="titulo-secao">Cancelar Consulta (Antecedência Mínima 24h)</h2>
+  <form method="post" action="{% url 'agendamentos:cancelar' consulta.protocolo %}">
+    {% csrf_token %}
+    <label for="{{ form_cancelar.justificativa.id_for_label }}">{{ form_cancelar.justificativa.label }}</label>
+    {{ form_cancelar.justificativa }}
+    <button type="submit" class="botao botao-perigo">Confirmar Cancelamento da Consulta</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,76 @@
+{% load static %}<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MobiLivre · SemBarreiras ADEFAL{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+</head>
+<body class="{% if user.is_authenticated and user.perfil_pcd %}toque-{{ user.perfil_pcd.tamanho_toque|lower }}{% if user.perfil_pcd.alto_contraste %} alto-contraste{% endif %}{% else %}toque-padrao{% endif %}">
+  <div class="moldura-mobile">
+    <header class="topo">
+      <div class="barra-status" aria-hidden="true">
+        <span>10:09</span>
+        <span>5G · SemBarreiras · {% if user.is_authenticated %}{{ user.get_papel_display }}{% else %}ADEFAL{% endif %}</span>
+      </div>
+      <div class="topo-interno">
+        <div class="topo-titulo">
+          {% block botao_voltar %}
+            {% if user.is_authenticated %}
+              <a class="botao-voltar" href="{% url 'contas:home' %}" aria-label="Voltar ao início">←</a>
+            {% else %}
+              <a class="botao-voltar" href="{% url 'contas:entrar' %}" aria-label="Voltar ao login">←</a>
+            {% endif %}
+          {% endblock %}
+          <div>
+            <h1 class="titulo-tela">{% block titulo_tela %}SemBarreiras{% endblock %}</h1>
+          </div>
+        </div>
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'contas:sair' %}" class="form-sair">
+            {% csrf_token %}
+            <button type="submit" class="botao-link">Sair</button>
+          </form>
+        {% endif %}
+      </div>
+    </header>
+
+    <main class="conteudo" id="conteudo-principal">
+      {% if messages %}
+        <ul class="mensagens" aria-live="polite">
+          {% for message in messages %}
+            <li class="mensagem {{ message.tags }}" role="status">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    {% if user.is_authenticated %}
+      <nav class="barra-inferior" aria-label="Navegação principal">
+        <a href="{% url 'contas:home' %}" class="item-nav {% block nav_home %}{% endblock %}">
+          <span class="icone-nav" aria-hidden="true">🏠</span>
+          <span>Home</span>
+        </a>
+        <a href="{% url 'transporte:consulta' %}" class="item-nav {% block nav_transporte %}{% endblock %}">
+          <span class="icone-nav" aria-hidden="true">🚌</span>
+          <span>Transporte</span>
+        </a>
+        <a href="{% url 'agendamentos:lista' %}" class="item-nav {% block nav_saude %}{% endblock %}">
+          <span class="icone-nav" aria-hidden="true">🏥</span>
+          <span>Saúde ADEFAL</span>
+        </a>
+        <a href="{% url 'equipamentos:lista' %}" class="item-nav {% block nav_equipamentos %}{% endblock %}">
+          <span class="icone-nav" aria-hidden="true">♿</span>
+          <span>Equipamentos</span>
+        </a>
+        <a href="{% url 'contas:painel' %}" class="item-nav {% block nav_perfil %}{% endblock %}">
+          <span class="icone-nav" aria-hidden="true">👤</span>
+          <span>Perfil</span>
+        </a>
+      </nav>
+    {% endif %}
+  </div>
+</body>
+</html>

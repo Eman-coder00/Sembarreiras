@@ -1,6 +1,6 @@
 # Spec 0004: Transporte urbano acessível
 
-- **Status:** Proposto
+- **Status:** Implementado
 - **Requisitos:** RF-12 a RF-14 e RNF-05 do [PRD 0001](../prd/0001-sem-barreiras.md)
 - **Decisões:** [ADR 0001](../adr/0001-mvt-com-camada-de-service.md), [ADR 0004](../adr/0004-simulacao-local-de-integracoes-externas.md)
 - **Depende de:** [Spec 0002](0002-contas-vinculo-e-acessibilidade.md)
@@ -68,8 +68,8 @@
 
 ## Testes
 
-- [ ] A busca retorna exclusivamente veículos com `acessibilidade_ativa=True`; ônibus com elevador inoperante (`acessibilidade_ativa=False`) nunca aparecem na listagem.
-- [ ] O filtro por número da linha ou destino/bairro retorna apenas os veículos correspondentes dentro do raio informado.
-- [ ] `calcular_eta_minutos` retorna a distância em metros e o tempo estimado em minutos de forma consistente com a velocidade média.
-- [ ] `rastrear_veiculo` exibe a distância e a mensagem `"Próximo ônibus adaptado chega em aproximadamente X minutos"` para veículo acessível, e retorna 404 para prefixo inexistente ou sem acessibilidade ativa.
+- [x] A busca retorna exclusivamente veículos com `acessibilidade_ativa=True`; ônibus com elevador inoperante (`acessibilidade_ativa=False`) nunca aparecem na listagem.
+- [x] O filtro por número da linha ou destino/bairro retorna apenas os veículos correspondentes dentro do raio informado.
+- [x] `calcular_eta_minutos` retorna a distância em metros e o tempo estimado em minutos de forma consistente com a velocidade média.
+- [x] `rastrear_veiculo` exibe a distância e a mensagem `"Próximo ônibus adaptado chega em aproximadamente X minutos"` para veículo acessível, e retorna 404 para prefixo inexistente ou sem acessibilidade ativa.
 

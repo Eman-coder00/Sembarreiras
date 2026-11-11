@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Gestão de Vínculos de Cuidador · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}RF003{% endblock %}
+{% block titulo_tela %}Vincular Cuidador ou Tutor{% endblock %}
+{% block nav_perfil %}ativo{% endblock %}
+
+{% block content %}
+{% for vinculo in vinculos %}
+  <section class="cartao {% if vinculo.status == 2 %}cartao-destaque{% endif %}">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+      <strong>Titular PCD: {{ vinculo.titular_pcd.nome_completo }} ({{ vinculo.titular_pcd.cpf }})</strong>
+      <span class="selo">{{ vinculo.get_status_display }}</span>
+    </div>
+    <p>Cuidador: {{ vinculo.cuidador.nome_completo }} ({{ vinculo.cuidador.cpf }}) · {{ vinculo.get_grau_parentesco_display }}</p>
+
+    {% if vinculo.status == 1 %}
+      <div class="cartao cartao-alerta">
+        <h3 class="titulo-secao">Confirmação Expressa com Código OTP</h3>
+        {% if user == vinculo.titular_pcd %}
+          <p>Código OTP gerado para aprovação: <strong>{{ vinculo.codigo_otp }}</strong></p>
+        {% endif %}
+        <form method="post" action="{% url 'contas:confirmar_vinculo' vinculo.id %}">
+          {% csrf_token %}
+          {{ form_otp.codigo_otp.label_tag }}
+          {{ form_otp.codigo_otp }}
+          <button type="submit" class="botao">Validar e Estabelecer Vínculo</button>
+        </form>
+      </div>
+    {% endif %}
+
+    {% if vinculo.status != 3 %}
+      <form method="post" action="{% url 'contas:revogar_vinculo' vinculo.id %}" style="margin-top:0.5rem;">
+        {% csrf_token %}
+        <button type="submit" class="botao botao-perigo">Revogar Vínculo</button>
+      </form>
+    {% endif %}
+  </section>
+{% empty %}
+  <section class="cartao">
+    <p>Nenhum vínculo de cuidador registrado.</p>
+  </section>
+{% endfor %}
+{% endblock %}
+

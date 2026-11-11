@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Solicitação {{ solicitacao.protocolo }} · SemBarreiras{% endblock %}
+{% block etiqueta_rf %}TELAS 19 & 20 · RF021 / RF022{% endblock %}
+{% block titulo_tela %}Protocolo {{ solicitacao.protocolo }}{% endblock %}
+{% block nav_equipamentos %}ativo{% endblock %}
+
+{% block content %}
+<section class="cartao cartao-destaque">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+    <strong>{{ solicitacao.get_tipo_equipamento_display }}</strong>
+    <span class="selo">{{ solicitacao.get_status_display }}</span>
+  </div>
+  <p style="font-size:0.9rem;margin:0.4rem 0;">
+    <strong>Beneficiário PCD:</strong> {{ solicitacao.beneficiario_pcd.nome_completo }} ({{ solicitacao.beneficiario_pcd.cpf }})<br>
+    <strong>Medidas:</strong> Quadril {{ solicitacao.largura_quadril_cm }} cm · Altura {{ solicitacao.altura_cm }} cm · Peso {{ solicitacao.peso_kg }} kg<br>
+    {% if solicitacao.crm_medico %}
+      <strong>CRM Médico:</strong> {{ solicitacao.crm_medico }}<br>
+    {% endif %}
+    {% if solicitacao.parecer_tecnico %}
+      <strong>Parecer Técnico ADEFAL:</strong> {{ solicitacao.parecer_tecnico }}<br>
+    {% endif %}
+    {% if solicitacao.data_vencimento_emprestimo %}
+      <strong>Vencimento do Empréstimo:</strong> {{ solicitacao.data_vencimento_emprestimo|date:"d/m/Y" }}
+      ({{ solicitacao.get_acao_devolucao_display }})
+    {% endif %}
+  </p>
+
+  <div style="display:grid;gap:0.55rem;margin-top:0.85rem;">
+    <a href="{% url 'equipamentos:baixar_anexo' solicitacao.protocolo 'laudo' %}" class="botao botao-secundario">
+      🔒 Baixar Laudo Médico
+    </a>
+    <a href="{% url 'equipamentos:baixar_anexo' solicitacao.protocolo 'comprovante' %}" class="botao botao-secundario">
+      🔒 Baixar Comprovante de Residência
+    </a>
+  </div>
+</section>
+
+<section class="cartao">
+  <h2 class="titulo-secao">Linha do Tempo da Triagem e Entrega</h2>
+  {% for ev in eventos %}
+    <div style="border-left:3px solid var(--destaque);padding-left:0.85rem;margin-bottom:0.85rem;">
+      <strong style="display:block;font-size:0.9rem;">{{ ev.get_status_display }}</strong>
+      <span style="font-size:0.86rem;">{{ ev.descricao }}</span>
+      <span style="display:block;font-size:0.78rem;color:var(--suave);">
+        {{ ev.criado_em|date:"d/m/Y H:i" }} · {{ ev.registrado_por.nome_completo }}
+      </span>
+    </div>
+  {% endfor %}
+</section>
+
+{% if solicitacao.status == 4 %}
+<section class="cartao cartao-alerta">
+  <h2 class="titulo-secao" style="color:var(--alerta);">Renovação de Prazo ou Agendamento de Devolução</h2>
+  <form method="post" action="{% url 'equipamentos:gerenciar_prazo' solicitacao.protocolo %}">
+    {% csrf_token %}
+    {% for field in form_prazo %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+    {% endfor %}
+    <button type="submit" class="botao">Registrar Solicitação de Prazo</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}
+
