@@ -219,10 +219,31 @@
     if (divFallback) divFallback.style.display = "none";
 
     var mapa = L.map("mapa-leaflet").setView(dados.centro || [-9.64985, -35.70895], 13);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap"
-    }).addTo(mapa);
+    var camadaPrincipal = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: 19,
+        attribution: "Tiles &copy; Esri"
+      }
+    ).addTo(mapa);
+
+    var fallbackAtivado = false;
+    camadaPrincipal.on("tileerror", function () {
+      if (fallbackAtivado) return;
+      fallbackAtivado = true;
+      mapa.removeLayer(camadaPrincipal);
+      var camadaOsmHot = L.tileLayer(
+        "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+        {
+          maxZoom: 19,
+          attribution: "&copy; OpenStreetMap HOT"
+        }
+      ).addTo(mapa);
+      camadaOsmHot.on("tileerror", function () {
+        divLeaflet.style.display = "none";
+        if (divFallback) divFallback.style.display = "block";
+      });
+    });
 
     function criarIcone(emoji, classe) {
       return L.divIcon({
