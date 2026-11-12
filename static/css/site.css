@@ -215,6 +215,189 @@ textarea:focus {
   outline: 2px solid var(--destaque);
 }
 
+/* Fallback geral moderno para inputs de arquivo */
+input[type="file"] {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  background: var(--fundo);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  font: inherit;
+  margin-bottom: 0.85rem;
+}
+
+input[type="file"]::file-selector-button,
+input[type="file"]::-webkit-file-upload-button {
+  min-height: 38px;
+  padding: 0.45rem 0.95rem;
+  margin-right: 0.75rem;
+  background: var(--superficie-elevada);
+  color: var(--destaque);
+  border: 1px solid var(--destaque);
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+input[type="file"]::file-selector-button:hover,
+input[type="file"]::-webkit-file-upload-button:hover {
+  background: var(--destaque);
+  color: var(--sobre-destaque);
+}
+
+/* Áreas de Upload Personalizadas com Design Moderno (RF019 / RF020) */
+.cartao-upload {
+  background: var(--superficie);
+  border: 1.5px dashed var(--borda);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 0.95rem;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cartao-upload:hover,
+.cartao-upload:focus-within {
+  border-color: var(--destaque);
+  background: rgba(0, 212, 146, 0.04);
+}
+
+.cartao-upload.arquivo-selecionado {
+  border-style: solid;
+  border-color: var(--destaque);
+  background: rgba(0, 212, 146, 0.08);
+}
+
+.cartao-upload-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.icone-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--superficie-elevada);
+  border: 1px solid var(--borda);
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.info-upload {
+  display: flex;
+  flex-direction: column;
+}
+
+.titulo-upload {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--texto);
+}
+
+.dica-upload {
+  font-size: 0.78rem;
+  color: var(--suave);
+  margin-top: 0.15rem;
+}
+
+.area-acao-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  position: relative;
+}
+
+/* Oculta o input original feio sem remover acessibilidade por teclado/leitor de tela */
+.area-acao-upload input[type="file"].campo-arquivo-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.botao-escolher-foto {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: var(--altura-alvo);
+  padding: 0.75rem 1.15rem;
+  background: var(--superficie-elevada);
+  color: var(--texto);
+  border: 1.5px solid var(--destaque);
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.botao-escolher-foto svg {
+  color: var(--destaque);
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.botao-escolher-foto:hover {
+  background: var(--destaque);
+  color: var(--sobre-destaque);
+}
+
+.botao-escolher-foto:hover svg {
+  color: var(--sobre-destaque);
+}
+
+.botao-escolher-foto:active {
+  transform: scale(0.98);
+}
+
+.feedback-arquivo {
+  font-size: 0.84rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  word-break: break-all;
+  min-height: 38px;
+}
+
+.nome-arquivo-vazio {
+  color: var(--suave);
+  font-style: italic;
+  font-size: 0.82rem;
+}
+
+.nome-arquivo-ativo {
+  color: var(--destaque);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.88rem;
+}
+
+.tamanho-arquivo {
+  color: var(--suave);
+  font-weight: 400;
+  font-size: 0.78rem;
+}
+
 /* Botões com área de toque mínima 48x48dp (WCAG 2.1 AA) */
 button,
 .botao {

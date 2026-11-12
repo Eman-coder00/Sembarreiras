@@ -8,21 +8,165 @@
 <section class="cartao cartao-destaque">
   <h2 class="titulo-secao">Dados Antropométricos e Envio de Documentos</h2>
   <p style="font-size:0.86rem;color:var(--suave);margin-top:0;">
-    Envie o laudo médico (PDF, JPG ou PNG até 10 MB) e o comprovante de residência (até 5 MB).
+    Preencha as medidas do paciente e envie fotos legíveis ou PDFs do laudo médico e comprovante de residência para triagem na ADEFAL.
   </p>
 
   <form method="post" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     {{ form.non_field_errors }}
-    {% for field in form %}
-      {% if field.name != "titular_cpf" or user.papel == "CUIDADOR" %}
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {{ field.errors }}
-      {% endif %}
-    {% endfor %}
-    <button type="submit" class="botao">Protocolar Solicitação na ADEFAL</button>
+
+    {% if user.papel == "CUIDADOR" %}
+      <div style="margin-bottom: 0.85rem;">
+        <label for="{{ form.titular_cpf.id_for_label }}">{{ form.titular_cpf.label }}</label>
+        {{ form.titular_cpf }}
+        {{ form.titular_cpf.errors }}
+      </div>
+    {% endif %}
+
+    <div style="margin-bottom: 0.85rem;">
+      <label for="{{ form.tipo_equipamento.id_for_label }}">{{ form.tipo_equipamento.label }}</label>
+      {{ form.tipo_equipamento }}
+      {{ form.tipo_equipamento.errors }}
+    </div>
+
+    <!-- Medidas antropométricas em 3 colunas compactas -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(95px, 1fr));gap:0.6rem;margin-bottom:0.85rem;">
+      <div>
+        <label for="{{ form.largura_quadril_cm.id_for_label }}">Quadril (cm)</label>
+        {{ form.largura_quadril_cm }}
+        {{ form.largura_quadril_cm.errors }}
+      </div>
+      <div>
+        <label for="{{ form.altura_cm.id_for_label }}">Altura (cm)</label>
+        {{ form.altura_cm }}
+        {{ form.altura_cm.errors }}
+      </div>
+      <div>
+        <label for="{{ form.peso_kg.id_for_label }}">Peso (kg)</label>
+        {{ form.peso_kg }}
+        {{ form.peso_kg.errors }}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 0.85rem;">
+      <label for="{{ form.observacoes_clinicas.id_for_label }}">{{ form.observacoes_clinicas.label }}</label>
+      {{ form.observacoes_clinicas }}
+      {{ form.observacoes_clinicas.errors }}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1.15rem;">
+      <div>
+        <label for="{{ form.crm_medico.id_for_label }}">{{ form.crm_medico.label }}</label>
+        {{ form.crm_medico }}
+        {{ form.crm_medico.errors }}
+      </div>
+      <div>
+        <label for="{{ form.data_emissao_laudo.id_for_label }}">{{ form.data_emissao_laudo.label }}</label>
+        {{ form.data_emissao_laudo }}
+        {{ form.data_emissao_laudo.errors }}
+      </div>
+    </div>
+
+    <!-- ÁREA DE UPLOAD COM DESIGN MODERNO (FOTOS / ARQUIVOS) -->
+    <div class="bloco-upload-documentos">
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--ciano); margin: 0 0 0.85rem; display: flex; align-items: center; gap: 0.45rem;">
+        <span aria-hidden="true">📎</span> Documentação e Fotos Digitalizadas
+      </h3>
+
+      <!-- 1. Campo de Laudo Médico -->
+      <div class="cartao-upload" id="area-upload-laudo">
+        <div class="cartao-upload-cabecalho">
+          <div class="icone-upload" aria-hidden="true">📋</div>
+          <div class="info-upload">
+            <strong class="titulo-upload">Laudo Médico Digitalizado</strong>
+            <span class="dica-upload">Foto legível ou PDF · máx. 10 MB</span>
+          </div>
+        </div>
+
+        <div class="area-acao-upload">
+          <label for="{{ form.arquivo_laudo.id_for_label }}" class="botao-escolher-foto" tabindex="0" role="button" aria-controls="{{ form.arquivo_laudo.id_for_label }}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span>Tirar Foto ou Escolher Arquivo</span>
+          </label>
+          {{ form.arquivo_laudo }}
+          <div class="feedback-arquivo" id="feedback-laudo" aria-live="polite">
+            <span class="nome-arquivo-vazio">Nenhum arquivo ou foto selecionado</span>
+          </div>
+        </div>
+        {{ form.arquivo_laudo.errors }}
+      </div>
+
+      <!-- 2. Campo de Comprovante de Residência -->
+      <div class="cartao-upload" id="area-upload-residencia">
+        <div class="cartao-upload-cabecalho">
+          <div class="icone-upload" aria-hidden="true">🏠</div>
+          <div class="info-upload">
+            <strong class="titulo-upload">Comprovante de Residência Atualizado</strong>
+            <span class="dica-upload">Foto da conta (energia/água) ou PDF · máx. 5 MB</span>
+          </div>
+        </div>
+
+        <div class="area-acao-upload">
+          <label for="{{ form.arquivo_comprovante_residencia.id_for_label }}" class="botao-escolher-foto" tabindex="0" role="button" aria-controls="{{ form.arquivo_comprovante_residencia.id_for_label }}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span>Tirar Foto ou Escolher Arquivo</span>
+          </label>
+          {{ form.arquivo_comprovante_residencia }}
+          <div class="feedback-arquivo" id="feedback-residencia" aria-live="polite">
+            <span class="nome-arquivo-vazio">Nenhum arquivo ou foto selecionado</span>
+          </div>
+        </div>
+        {{ form.arquivo_comprovante_residencia.errors }}
+      </div>
+    </div>
+
+    <button type="submit" class="botao" style="margin-top: 1.15rem;">Protocolar Solicitação na ADEFAL</button>
   </form>
 </section>
-{% endblock %}
 
+<script>
+  (function () {
+    function configurarFeedbackUpload(inputId, feedbackId, cardId) {
+      var input = document.getElementById(inputId);
+      var feedback = document.getElementById(feedbackId);
+      var card = document.getElementById(cardId);
+      if (!input || !feedback) return;
+
+      function atualizar() {
+        if (input.files && input.files.length > 0) {
+          var arquivo = input.files[0];
+          var tamanhoMB = (arquivo.size / (1024 * 1024)).toFixed(2);
+          feedback.innerHTML = '<span class="nome-arquivo-ativo"><span>✓</span> <strong>' +
+            arquivo.name + '</strong> <span class="tamanho-arquivo">(' + tamanhoMB + ' MB)</span></span>';
+          if (card) card.classList.add("arquivo-selecionado");
+        } else {
+          feedback.innerHTML = '<span class="nome-arquivo-vazio">Nenhum arquivo ou foto selecionado</span>';
+          if (card) card.classList.remove("arquivo-selecionado");
+        }
+      }
+
+      input.addEventListener("change", atualizar);
+
+      // Suporte a teclado para o label (Enter / Espaço)
+      var label = document.querySelector('label[for="' + inputId + '"]');
+      if (label) {
+        label.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            input.click();
+          }
+        });
+      }
+    }
+
+    configurarFeedbackUpload("{{ form.arquivo_laudo.id_for_label }}", "feedback-laudo", "area-upload-laudo");
+    configurarFeedbackUpload("{{ form.arquivo_comprovante_residencia.id_for_label }}", "feedback-residencia", "area-upload-residencia");
+  })();
+</script>
+{% endblock %}

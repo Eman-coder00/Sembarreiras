@@ -51,9 +51,21 @@ class SolicitarEquipamentoForm(forms.Form):
     )
     arquivo_laudo = forms.FileField(
         label="Laudo Médico Digitalizado (PDF, JPG ou PNG — máx. 10 MB)",
+        widget=forms.FileInput(
+            attrs={
+                "accept": "image/jpeg,image/png,application/pdf",
+                "class": "campo-arquivo-input",
+            }
+        ),
     )
     arquivo_comprovante_residencia = forms.FileField(
         label="Comprovante de Residência Atualizado (PDF, JPG ou PNG — máx. 5 MB)",
+        widget=forms.FileInput(
+            attrs={
+                "accept": "image/jpeg,image/png,application/pdf",
+                "class": "campo-arquivo-input",
+            }
+        ),
     )
 
 
