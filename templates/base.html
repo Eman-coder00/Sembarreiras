@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}MobiLivre · SemBarreiras ADEFAL{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261111">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261116v3">
   {% block extra_head %}{% endblock %}
 </head>
 <body class="{% if user.is_authenticated and user.perfil_pcd %}toque-{{ user.perfil_pcd.tamanho_toque|lower }}{% if user.perfil_pcd.alto_contraste %} alto-contraste{% endif %}{% else %}toque-padrao{% endif %}">
@@ -73,5 +73,88 @@
       </nav>
     {% endif %}
   </div>
+
+  <script>
+    (function () {
+      function inicializarBotoesOlhoSenha() {
+        var iconOlhoAberto = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        var iconOlhoFechado = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="23" x2="23" y2="1"></line></svg>';
+
+        var inputsSenha = document.querySelectorAll('input[type="password"]');
+        inputsSenha.forEach(function (input) {
+          if (input.dataset.temBotaoOlho) return;
+          input.dataset.temBotaoOlho = "true";
+
+          var wrapper = document.createElement("div");
+          wrapper.className = "campo-senha-container";
+          wrapper.style.position = "relative";
+          wrapper.style.display = "flex";
+          wrapper.style.alignItems = "center";
+          wrapper.style.width = "100%";
+          wrapper.style.marginBottom = "0.85rem";
+
+          input.parentNode.insertBefore(wrapper, input);
+          wrapper.appendChild(input);
+
+          input.style.width = "100%";
+          input.style.paddingRight = "48px";
+          input.style.marginBottom = "0";
+
+          var botao = document.createElement("button");
+          botao.type = "button";
+          botao.className = "botao-toggle-senha";
+          botao.setAttribute("aria-label", "Exibir senha digitada");
+          botao.setAttribute("title", "Exibir senha");
+          botao.style.position = "absolute";
+          botao.style.right = "8px";
+          botao.style.top = "50%";
+          botao.style.transform = "translateY(-50%)";
+          botao.style.background = "transparent";
+          botao.style.backgroundColor = "transparent";
+          botao.style.border = "none";
+          botao.style.boxShadow = "none";
+          botao.style.width = "38px";
+          botao.style.height = "38px";
+          botao.style.minWidth = "38px";
+          botao.style.minHeight = "38px";
+          botao.style.padding = "0";
+          botao.style.margin = "0";
+          botao.style.display = "inline-flex";
+          botao.style.alignItems = "center";
+          botao.style.justifyContent = "center";
+          botao.style.color = "var(--suave)";
+          botao.style.cursor = "pointer";
+          botao.style.zIndex = "5";
+          botao.style.borderRadius = "8px";
+          botao.innerHTML = iconOlhoAberto;
+
+          botao.addEventListener("mouseenter", function () {
+            botao.style.color = "var(--destaque)";
+          });
+          botao.addEventListener("mouseleave", function () {
+            botao.style.color = "var(--suave)";
+          });
+
+          botao.addEventListener("click", function () {
+            var estaCensurado = input.type === "password";
+            input.type = estaCensurado ? "text" : "password";
+            botao.innerHTML = estaCensurado ? iconOlhoFechado : iconOlhoAberto;
+            var novoRotulo = estaCensurado ? "Ocultar senha digitada" : "Exibir senha digitada";
+            botao.setAttribute("aria-label", novoRotulo);
+            botao.setAttribute("title", novoRotulo);
+            input.focus();
+          });
+
+          wrapper.appendChild(botao);
+        });
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", inicializarBotoesOlhoSenha);
+      } else {
+        inicializarBotoesOlhoSenha();
+      }
+    })();
+  </script>
 </body>
 </html>

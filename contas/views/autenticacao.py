@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -467,20 +468,28 @@ class SenhaRecuperarView(View):
             return render(request, "contas/recuperar_senha.html", {"form": form})
 
         identificador = form.cleaned_data["identificador"]
-        AutenticacaoService.solicitar_recuperacao_senha(
+        token = AutenticacaoService.solicitar_recuperacao_senha(
             identificador=identificador,
             ip=_obter_ip(request),
         )
-        messages.success(request, "Código de verificação enviado")
+        request.session["recuperacao_identificador"] = identificador
+        if token and settings.DEBUG:
+            messages.success(
+                request,
+                f"Código de verificação enviado! [Ambiente de Demonstração]: seu código é {token.codigo}",
+            )
+        else:
+            messages.success(request, "Código de verificação enviado")
         return redirect("contas:redefinir_senha")
 
 
 class SenhaRedefinirView(View):
     def get(self, request):
+        identificador = request.session.get("recuperacao_identificador", "")
         return render(
             request,
             "contas/redefinir_senha.html",
-            {"form": RedefinirSenhaForm()},
+            {"form": RedefinirSenhaForm(initial={"identificador": identificador})},
         )
 
     def post(self, request):

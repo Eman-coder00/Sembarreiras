@@ -215,6 +215,57 @@ textarea:focus {
   outline: 2px solid var(--destaque);
 }
 
+/* Container e botão de alternância de visualização de senha (Olho) */
+.campo-senha-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 0.85rem;
+}
+
+.campo-senha-container input[type="password"],
+.campo-senha-container input[type="text"] {
+  width: 100%;
+  padding-right: 48px !important;
+  margin-bottom: 0 !important;
+}
+
+.botao-toggle-senha {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  padding: 0 !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  color: var(--suave);
+  border-radius: 8px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  z-index: 2;
+}
+
+.botao-toggle-senha:hover,
+.botao-toggle-senha:focus {
+  color: var(--destaque);
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  outline: none;
+}
+
+.botao-toggle-senha svg {
+  display: block;
+  pointer-events: none;
+}
+
 /* Fallback geral moderno para inputs de arquivo */
 input[type="file"] {
   width: 100%;
@@ -399,7 +450,7 @@ input[type="file"]::-webkit-file-upload-button:hover {
 }
 
 /* Botões com área de toque mínima 48x48dp (WCAG 2.1 AA) */
-button,
+button:not(.botao-toggle-senha),
 .botao {
   display: inline-flex;
   align-items: center;
@@ -725,4 +776,62 @@ button:hover,
 .seletor-perfil input[type="radio"]:focus-visible + label {
   outline: 3px solid var(--destaque);
   outline-offset: 2px;
+}
+
+/* Sobrescrita de alta especificidade para o botão do olho dentro do campo de senha */
+.campo-senha-container {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin-bottom: 0.85rem !important;
+}
+
+.campo-senha-container input[type="password"],
+.campo-senha-container input[type="text"] {
+  width: 100% !important;
+  padding-right: 48px !important;
+  margin-bottom: 0 !important;
+}
+
+.campo-senha-container button.botao-toggle-senha,
+button.botao-toggle-senha {
+  position: absolute !important;
+  right: 8px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--suave) !important;
+  border-radius: 8px !important;
+  transition: color 0.15s ease, background-color 0.15s ease !important;
+  z-index: 5 !important;
+}
+
+.campo-senha-container button.botao-toggle-senha:hover,
+.campo-senha-container button.botao-toggle-senha:focus,
+button.botao-toggle-senha:hover,
+button.botao-toggle-senha:focus {
+  color: var(--destaque) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  filter: none !important;
+  outline: none !important;
+}
+
+.campo-senha-container button.botao-toggle-senha svg,
+button.botao-toggle-senha svg {
+  display: block !important;
+  pointer-events: none !important;
 }
