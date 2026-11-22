@@ -17,9 +17,10 @@ Plataforma web mobile-first desenvolvida em **Python + Django** com banco de dad
 ## Documentação e Arquitetura
 
 - [Pilares de Programação Orientada a Objetos (POO - AV03)](docs/poo.md)
+- [Estrutura de Banco de Dados — Entrega 3AF (5,0 Pontos)](docs/entrega_3af_banco_de_dados.md)
+- [Script do Banco de Dados PostgreSQL (DDL Completo - 3AF)](docs/sem_barreiras.sql)
 - [Visão de Arquitetura (MVT + Camada de Service)](docs/arquitetura.md)
 - [PRD — Requisitos do Sistema](docs/prd.md)
-- [Script do Banco de Dados PostgreSQL (DDL)](docs/sem_barreiras.sql)
 - [Decisões de Arquitetura (ADRs)](docs/adr/0001-mvt-com-camada-de-service.md)
 - [Especificações Técnicas (Specs 0001 a 0007)](docs/specs/0001-fundacao.md)
 
@@ -28,7 +29,7 @@ Plataforma web mobile-first desenvolvida em **Python + Django** com banco de dad
 ## Pré-requisitos
 
 - **Python 3.12+**
-- **PostgreSQL** instalado e em execução na porta `5432`
+- **PostgreSQL 14+** instalado e em execução na porta `5432`
 - **Git**
 
 ---
@@ -38,14 +39,9 @@ Plataforma web mobile-first desenvolvida em **Python + Django** com banco de dad
 ### 1. Clonar o repositório
 
 ```powershell
-git clone <URL_DO_REPOSITORIO>
-cd <NOME_DA_PASTA>
+git clone https://github.com/Eman-coder00/Sembarreiras.git
+cd Sembarreiras
 ```
-
-> Caso o repositório contenha a pasta `sistema/` na raiz, entre nela antes dos passos seguintes:
-> ```powershell
-> cd sistema
-> ```
 
 ### 2. Criar ambiente virtual e instalar dependências
 
@@ -75,11 +71,11 @@ Copy-Item .env.example .env
 cp .env.example .env
 ```
 
-Edite o `.env` e informe o usuário e a senha do seu PostgreSQL local (`POSTGRES_USER` e `POSTGRES_PASSWORD`).
+> Caso sua senha do PostgreSQL não seja a padrão `postgres`, abra o arquivo `.env` e ajuste `POSTGRES_USER` e `POSTGRES_PASSWORD`.
 
 ### 4. Criar o banco de dados PostgreSQL
 
-Execute o utilitário [`criar_banco.py`](criar_banco.py) para criar automaticamente o banco `sem_barreiras` caso ainda não exista:
+Execute o utilitário [`criar_banco.py`](criar_banco.py) para criar automaticamente o banco `sem_barreiras` no seu PostgreSQL:
 
 **Windows (PowerShell):**
 ```powershell
@@ -91,7 +87,7 @@ Execute o utilitário [`criar_banco.py`](criar_banco.py) para criar automaticame
 .venv/bin/python criar_banco.py
 ```
 
-### 5. Aplicar migrações e carregar os dados iniciais
+### 5. Aplicar migrações e carregar dados iniciais
 
 **Windows (PowerShell):**
 ```powershell
@@ -105,27 +101,41 @@ Execute o utilitário [`criar_banco.py`](criar_banco.py) para criar automaticame
 .venv/bin/python manage.py carregar_dados_iniciais
 ```
 
-*(O comando `carregar_dados_iniciais` é idempotente e popula CEPs de Maceió/AL, linhas e paradas acessíveis, ônibus adaptados, vagas na agenda da ADEFAL e frota de vans).*
+*(O comando `carregar_dados_iniciais` é idempotente e popula os CEPs de Maceió/AL, paradas acessíveis, linhas de ônibus, veículos adaptados, vagas de consultas na grade da ADEFAL e a frota de vans).*
 
-### 6. (Opcional) Criar usuário administrador / equipe ADEFAL
+### 6. Executar os testes automatizados
 
-Para acessar `/admin/`, validar QR Codes na portaria e realizar triagem de equipamentos:
-
-```powershell
-.\.venv\Scripts\python.exe manage.py createsuperuser
-```
-
-### 7. Executar os testes automatizados
+Para verificar a integridade da aplicação e conformidade com as regras de negócio:
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py test
 ```
 
-### 8. Iniciar o servidor de desenvolvimento
+### 7. Iniciar o servidor de desenvolvimento
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py runserver
 ```
 
 Acesse no navegador: **http://127.0.0.1:8000/**
+
+---
+
+## Perfis de Acesso e Como Testar as Funcionalidades
+
+1. **Acesso do Titular PCD:**
+   - Acesse **Cadastre-se como Titular PCD** (`/cadastro/pcd/`).
+   - Informe dados com CEP de Maceió (ex: `57051-190` - preenchimento automático da ADEFAL) e defina sua senha com botão de visualização do olho.
+   - Na tela inicial, teste: **Botão de Pânico** (contagem regressiva de 5s e cancelamento), **Mapa Acessível** (rotas de ônibus com rampa ativa), **Agendamento de Consultas** com transporte de van adaptada e **Solicitação de Cadeiras de Rodas/Órteses** com upload de fotos.
+
+2. **Acesso do Cuidador / Tutor Legal:**
+   - Acesse **Vincular como Cuidador** (`/cadastro/cuidador/`).
+   - Solicite o vínculo informando o CPF do titular PCD; confirme o vínculo através do código **OTP de 6 dígitos** emitido para o titular.
+
+3. **Acesso Administrativo / Portaria e Triagem ADEFAL:**
+   - Crie uma conta de equipe com:
+     ```powershell
+     .\.venv\Scripts\python.exe manage.py createsuperuser
+     ```
+   - Faça login para validar QR Codes de agendamentos na recepção (`/agendamentos/portaria/validar/`) e aprovar laudos médicos de equipamentos.
 
