@@ -16,8 +16,10 @@ Plataforma web mobile-first desenvolvida em **Python + Django** com banco de dad
 
 ## Documentação e Arquitetura
 
+- [Pilares de Programação Orientada a Objetos (POO - AV03)](docs/poo.md)
 - [Visão de Arquitetura (MVT + Camada de Service)](docs/arquitetura.md)
-- [PRD 0001 — Requisitos do Sistema](docs/prd/0001-sem-barreiras.md)
+- [PRD — Requisitos do Sistema](docs/prd.md)
+- [Script do Banco de Dados PostgreSQL (DDL)](docs/sem_barreiras.sql)
 - [Decisões de Arquitetura (ADRs)](docs/adr/0001-mvt-com-camada-de-service.md)
 - [Especificações Técnicas (Specs 0001 a 0007)](docs/specs/0001-fundacao.md)
 
