@@ -5,6 +5,7 @@ Configurações Django para o projeto SemBarreiras (MobiLivre — ADEFAL).
 import os
 from pathlib import Path
 
+import dj_database_url
 from django.core.management.utils import get_random_secret_key
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,12 +30,18 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or (
     get_random_secret_key() if DEBUG else ""
 )
 
+_allowed_hosts_env = os.environ.get("DJANGO_ALLOWED_HOSTS")
 ALLOWED_HOSTS: list[str] = (
-    os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
-    if os.environ.get("DJANGO_ALLOWED_HOSTS")
-    else ["localhost", "127.0.0.1", "testserver"]
-    if DEBUG
-    else []
+    [h.strip() for h in _allowed_hosts_env.split(",") if h.strip()]
+    if _allowed_hosts_env
+    else ["localhost", "127.0.0.1", "testserver", ".onrender.com"]
+)
+
+_csrf_origins_env = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS")
+CSRF_TRUSTED_ORIGINS: list[str] = (
+    [origin.strip() for origin in _csrf_origins_env.split(",") if origin.strip()]
+    if _csrf_origins_env
+    else ["https://*.onrender.com"]
 )
 
 INSTALLED_APPS = [
@@ -53,6 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -81,17 +89,25 @@ TEMPLATES = [
 WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "core.asgi.application"
 
-# Banco de dados PostgreSQL conforme ADR 0003
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "sem_barreiras"),
-        "USER": os.environ.get("POSTGRES_USER", "postgres"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "postgres"),
-        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
-        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+# Banco de dados PostgreSQL conforme ADR 0003 (suporte a DATABASE_URL na nuvem e local via env)
+if os.environ.get("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("POSTGRES_DB", "sem_barreiras"),
+            "USER": os.environ.get("POSTGRES_USER", "postgres"),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "postgres"),
+            "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+            "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -118,8 +134,17 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
-
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Diretório de uploads protegidos (sem rota estática pública — ADR 0005)
 MEDIA_ROOT = BASE_DIR / "media"

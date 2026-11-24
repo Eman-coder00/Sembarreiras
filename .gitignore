@@ -9,6 +9,8 @@ db.sqlite3
 **/.env
 media/
 **/media/
+staticfiles/
+**/staticfiles/
 pyrightconfig.json
 pyrefly.toml
 .vscode/
