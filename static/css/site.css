@@ -450,7 +450,7 @@ input[type="file"]::-webkit-file-upload-button:hover {
 }
 
 /* Botões com área de toque mínima 48x48dp (WCAG 2.1 AA) */
-button:not(.botao-toggle-senha),
+button:not(.botao-toggle-senha):not(.botao-panico-circular),
 .botao {
   display: inline-flex;
   align-items: center;
@@ -498,36 +498,86 @@ button:hover,
   font-weight: 700;
 }
 
-/* Botão de Pânico Circular (RF007) */
+/* Botão de Pânico Circular (RF007 - Fiel ao Protótipo Vermelho com Brilho) */
 .container-panico {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 1.75rem 0;
+  justify-content: center;
+  margin: 1.5rem 0 0.85rem;
 }
 
+button.botao-panico-circular,
 .botao-panico-circular {
-  width: 210px;
-  height: 210px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #ef4444 0%, #b91c1c 100%);
-  border: 6px solid #f87171;
-  box-shadow: 0 0 32px rgba(239, 68, 68, 0.55);
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  font-size: 1.5rem;
-  font-weight: 900;
-  cursor: pointer;
+  width: 220px !important;
+  height: 220px !important;
+  min-width: 220px !important;
+  min-height: 220px !important;
+  max-width: 220px !important;
+  max-height: 220px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle at 50% 35%, #ff4d4f 0%, #e11d48 45%, #881337 100%) !important;
+  border: 5px solid #fda4af !important;
+  box-shadow: 0 0 45px rgba(225, 29, 72, 0.75), 0 0 90px rgba(225, 29, 72, 0.35), inset 0 2px 14px rgba(255, 255, 255, 0.45) !important;
+  color: #ffffff !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.25rem !important;
+  font-size: 1.5rem !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease !important;
+}
+
+button.botao-panico-circular:hover,
+button.botao-panico-circular:focus,
+.botao-panico-circular:hover,
+.botao-panico-circular:focus {
+  transform: scale(1.04) !important;
+  box-shadow: 0 0 55px rgba(225, 29, 72, 0.95), 0 0 110px rgba(225, 29, 72, 0.5), inset 0 2px 16px rgba(255, 255, 255, 0.55) !important;
+  filter: brightness(1.08) !important;
+  outline: none !important;
+}
+
+button.botao-panico-circular:active,
+.botao-panico-circular:active {
+  transform: scale(0.97) !important;
+  box-shadow: 0 0 30px rgba(225, 29, 72, 0.8) !important;
+}
+
+.icone-panico-sirene {
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+.texto-principal-panico {
+  font-size: 1.5rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7) !important;
+  line-height: 1.1 !important;
 }
 
 .subtexto-panico {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  font-size: 0.7rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #ffe4e6 !important;
+  opacity: 0.95 !important;
+}
+
+.ajuda-panico {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--suave);
+  margin: 0.65rem 0 0;
 }
 
 /* Mensagens e alertas */
