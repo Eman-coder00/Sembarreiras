@@ -198,6 +198,8 @@ input[type="number"],
 select,
 textarea {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   min-height: var(--altura-alvo);
   padding: 0.65rem 0.85rem;
   background: var(--fundo);
@@ -206,6 +208,19 @@ textarea {
   border-radius: 10px;
   font: inherit;
   margin-bottom: 0.85rem;
+}
+
+select {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+select option {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  background: var(--fundo);
+  color: var(--texto);
 }
 
 input:focus,

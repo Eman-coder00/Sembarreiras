@@ -72,6 +72,45 @@ class VagaAgendaADEFAL(models.Model):
     def __str__(self) -> str:
         return f"{self.especialidade} - {self.profissional} ({self.data} {self.horario})"
 
+    @property
+    def profissional_curto(self) -> str:
+        """Retorna apenas o nome do profissional sem a especialidade repetida entre parênteses."""
+        if "(" in self.profissional:
+            return self.profissional.split("(")[0].strip()
+        return self.profissional
+
+    @property
+    def unidade_curta(self) -> str:
+        """Retorna o nome da unidade de forma concisa."""
+        if self.unidade == UnidadeADEFAL.SEDE_MACEIO:
+            return "Sede Farol"
+        if self.unidade == UnidadeADEFAL.UNIDADE_REGIONAL:
+            return "Regional"
+        return self.get_unidade_display()
+
+    @property
+    def especialidade_curta(self) -> str:
+        """Retorna o nome da especialidade de forma enxuta."""
+        mapa = {
+            EspecialidadeADEFAL.FISIOTERAPIA: "Fisioterapia",
+            EspecialidadeADEFAL.ORTOPEDIA: "Ortopedia",
+            EspecialidadeADEFAL.TERAPIA_OCUPACIONAL: "Terapia Ocupacional",
+            EspecialidadeADEFAL.NEUROLOGIA: "Neurologia",
+            EspecialidadeADEFAL.CONSULTA_GERAL: "Triagem Geral",
+        }
+        return mapa.get(self.especialidade, self.get_especialidade_display())
+
+    @property
+    def rotulo_opcao(self) -> str:
+        """
+        Formato limpo e compacto para caixas de seleção, evitando que o texto
+        transborde e quebre o layout mobile.
+        Exemplo: 27/11 às 08:30 — Fisioterapia · Dra. Camila Rocha (Sede Farol)
+        """
+        data_fmt = self.data.strftime("%d/%m/%Y")
+        hora_fmt = self.horario.strftime("%H:%M")
+        return f"{data_fmt} às {hora_fmt} — {self.especialidade_curta} · {self.profissional_curto} ({self.unidade_curta})"
+
 
 class Consulta(models.Model):
     objects: Any = models.Manager()

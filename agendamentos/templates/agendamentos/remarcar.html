@@ -17,7 +17,7 @@
     <select name="nova_vaga_id" id="id_nova_vaga_id" required>
       {% for v in vagas %}
         <option value="{{ v.id }}">
-          {{ v.data|date:"d/m/Y" }} às {{ v.horario|time:"H:i" }} — {{ v.profissional }} ({{ v.get_unidade_display }})
+          {{ v.rotulo_opcao }}
         </option>
       {% endfor %}
     </select>
